@@ -136,3 +136,5 @@ MAILERS = {
 }
 
 AUTH_USER_MODEL = "vault.Gamer"
+
+LOGIN_REDIRECT_URL = "/"
