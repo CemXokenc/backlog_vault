@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from vault.models import Gamer
+from vault.models import Gamer, Genre
 
 
 @admin.register(Gamer)
@@ -13,3 +13,8 @@ class GamerAdmin(UserAdmin):
     add_fieldsets = UserAdmin.add_fieldsets + (
         ("Additional info", {"fields": ("nickname", "bio",)}),
     )
+
+
+@admin.register(Genre)
+class GenreAdmin(admin.ModelAdmin):
+    pass
