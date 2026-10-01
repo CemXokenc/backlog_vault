@@ -187,3 +187,28 @@ class LibraryEntry(models.Model):
 
     def __str__(self):
         return f"{self.gamer} - {self.game} ({self.status})"
+
+
+class Collection(models.Model):
+    title = models.CharField(
+        max_length=255,
+    )
+    description = models.TextField(
+        blank=True,
+    )
+    owner = models.ForeignKey(
+        Gamer,
+        on_delete=models.CASCADE,
+        related_name="collections",
+    )
+    games = models.ManyToManyField(
+        Game,
+        blank=True,
+        related_name="collections",
+    )
+
+    class Meta:
+        ordering = ["title"]
+
+    def __str__(self):
+        return self.title
