@@ -12,6 +12,13 @@ class Gamer(AbstractUser):
     bio = models.TextField(
         blank=True,
     )
+    favorite_genre = models.ForeignKey(
+        "Genre",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="fans",
+    )
 
     def __str__(self):
         if self.nickname:
