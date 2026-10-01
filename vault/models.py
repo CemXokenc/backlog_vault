@@ -1,6 +1,8 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+from vault.validators import validate_release_year
+
 
 class Gamer(AbstractUser):
     nickname = models.CharField(
@@ -62,3 +64,39 @@ class Developer(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.country})"
+
+
+class Game(models.Model):
+    title = models.CharField(
+        max_length=255,
+    )
+    release_year = models.PositiveSmallIntegerField(
+        validators=[validate_release_year],
+    )
+    description = models.TextField(
+        blank=True,
+    )
+    cover_url = models.URLField(
+        blank=True,
+    )
+    developer = models.ForeignKey(
+        Developer,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="games",
+    )
+    genres = models.ManyToManyField(
+        Genre,
+        related_name="games",
+    )
+    platforms = models.ManyToManyField(
+        Platform,
+        related_name="games",
+    )
+
+    class Meta:
+        ordering = ["-release_year", "title"]
+
+    def __str__(self):
+        return f"{self.title} ({self.release_year})"
