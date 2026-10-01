@@ -41,3 +41,24 @@ class Platform(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Developer(models.Model):
+    name = models.CharField(
+        max_length=255,
+    )
+    country = models.CharField(
+        max_length=255,
+    )
+
+    class Meta:
+        ordering = ["name", "country"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["name", "country"],
+                name="unique_developer_name_country",
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.name} ({self.country})"

@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from vault.models import Gamer, Genre, Platform
+from vault.models import Gamer, Genre, Platform, Developer
 
 
 @admin.register(Gamer)
@@ -22,4 +22,9 @@ class GenreAdmin(admin.ModelAdmin):
 
 @admin.register(Platform)
 class PlatformAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(Developer)
+class DeveloperAdmin(admin.ModelAdmin):
     pass
