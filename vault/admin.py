@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from vault.models import Gamer, Genre, Platform, Developer, Game
+from vault.models import Gamer, Genre, Platform, Developer, Game, LibraryEntry
 
 EXTRA_FIELDS = (
     "Additional info",
@@ -34,3 +34,8 @@ class DeveloperAdmin(admin.ModelAdmin):
 @admin.register(Game)
 class GameAdmin(admin.ModelAdmin):
     filter_horizontal = ("genres", "platforms")
+
+
+@admin.register(LibraryEntry)
+class LibraryEntryAdmin(admin.ModelAdmin):
+    pass

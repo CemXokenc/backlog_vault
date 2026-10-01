@@ -1,7 +1,13 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.db.models import Q, F
 
-from vault.validators import validate_release_year
+from vault.validators import (
+    validate_release_year,
+    validate_rating,
+    MIN_RATING,
+    MAX_RATING,
+)
 
 
 class Gamer(AbstractUser):
@@ -107,3 +113,77 @@ class Game(models.Model):
 
     def __str__(self):
         return f"{self.title} ({self.release_year})"
+
+
+class LibraryEntry(models.Model):
+    class Status(models.TextChoices):
+        PLANNED = "planned", "Planned"
+        PLAYING = "playing", "Playing"
+        COMPLETED = "completed", "Completed"
+        DROPPED = "dropped", "Dropped"
+
+    gamer = models.ForeignKey(
+        Gamer,
+        on_delete=models.CASCADE,
+        related_name="library_entries",
+    )
+    game = models.ForeignKey(
+        Game,
+        on_delete=models.CASCADE,
+        related_name="library_entries",
+    )
+    platform = models.ForeignKey(
+        Platform,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="library_entries",
+    )
+    status = models.CharField(
+        max_length=10,
+        choices=Status,
+        default=Status.PLANNED,
+    )
+    rating = models.PositiveSmallIntegerField(
+        validators=[validate_rating],
+        null=True,
+        blank=True,
+    )
+    hours_played = models.PositiveIntegerField(
+        default=0,
+    )
+    started_at = models.DateField(
+        null=True,
+        blank=True,
+    )
+    finished_at = models.DateField(
+        null=True,
+        blank=True,
+    )
+    note = models.TextField(
+        blank=True,
+    )
+
+    class Meta:
+        verbose_name_plural = "library entries"
+        ordering = ["-rating", "hours_played"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["gamer", "game"],
+                name="unique_gamer_game_entry",
+            ),
+            models.CheckConstraint(
+                condition=Q(rating__isnull=True)
+                | Q(rating__gte=MIN_RATING, rating__lte=MAX_RATING),
+                name="rating_within_bounds",
+            ),
+            models.CheckConstraint(
+                condition=Q(started_at__isnull=True)
+                | Q(finished_at__isnull=True)
+                | Q(finished_at__gte=F("started_at")),
+                name="finished_not_before_started",
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.gamer} - {self.game} ({self.status})"
