@@ -1,11 +1,13 @@
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count, Q
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views import generic
 
 from vault.forms import GamerCreationForm
+from vault.mixins import SearchMixin
 from vault.models import LibraryEntry, Game, Genre, Platform, Developer
 
 
@@ -42,3 +44,11 @@ class RegisterView(generic.CreateView):
         login(self.request, self.object)
 
         return response
+
+
+class GenreListView(LoginRequiredMixin, SearchMixin, generic.ListView):
+    queryset = Genre.objects.annotate(num_games=Count("games")).order_by(
+        "name",
+    )
+    paginate_by = 10
+    search_placeholder = "Search genres"
