@@ -93,3 +93,33 @@ class PlatformListView(LoginRequiredMixin, SearchMixin, generic.ListView):
     )
     paginate_by = 10
     search_placeholder = "Search platforms"
+
+
+class PlatformCreateView(
+    LoginRequiredMixin, SuccessMessageMixin, generic.CreateView
+):
+    model = Platform
+    fields = ["name"]
+    success_url = reverse_lazy("vault:platform-list")
+    success_message = "Platform was successfully created!"
+
+
+class PlatformUpdateView(
+    LoginRequiredMixin,
+    SuccessMessageMixin,
+    generic.UpdateView,
+):
+    model = Platform
+    fields = ["name"]
+    success_url = reverse_lazy("vault:platform-list")
+    success_message = "Platform was successfully updated!"
+
+
+class PlatformDeleteView(
+    LoginRequiredMixin,
+    SuccessMessageMixin,
+    generic.DeleteView,
+):
+    model = Platform
+    success_url = reverse_lazy("vault:platform-list")
+    success_message = "Platform was successfully deleted!"

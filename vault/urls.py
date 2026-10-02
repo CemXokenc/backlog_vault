@@ -8,6 +8,9 @@ from vault.views import (
     GenreUpdateView,
     GenreDeleteView,
     PlatformListView,
+    PlatformCreateView,
+    PlatformUpdateView,
+    PlatformDeleteView,
 )
 
 urlpatterns = [
@@ -26,6 +29,21 @@ urlpatterns = [
         name="genre-delete",
     ),
     path("platforms/", PlatformListView.as_view(), name="platform-list"),
+    path(
+        "platforms/create/",
+        PlatformCreateView.as_view(),
+        name="platform-create",
+    ),
+    path(
+        "platforms/<int:pk>/update/",
+        PlatformUpdateView.as_view(),
+        name="platform-update",
+    ),
+    path(
+        "platforms/<int:pk>/delete/",
+        PlatformDeleteView.as_view(),
+        name="platform-delete",
+    ),
 ]
 
 app_name = "vault"
