@@ -123,3 +123,11 @@ class PlatformDeleteView(
     model = Platform
     success_url = reverse_lazy("vault:platform-list")
     success_message = "Platform was successfully deleted!"
+
+
+class DeveloperListView(LoginRequiredMixin, SearchMixin, generic.ListView):
+    queryset = Developer.objects.annotate(num_games=Count("games")).order_by(
+        "name", "country"
+    )
+    paginate_by = 10
+    search_placeholder = "Search developers"
