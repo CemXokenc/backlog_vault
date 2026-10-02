@@ -1,6 +1,7 @@
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Count, Q
 from django.shortcuts import render
 from django.urls import reverse_lazy
@@ -52,3 +53,35 @@ class GenreListView(LoginRequiredMixin, SearchMixin, generic.ListView):
     )
     paginate_by = 10
     search_placeholder = "Search genres"
+
+
+class GenreCreateView(
+    LoginRequiredMixin,
+    SuccessMessageMixin,
+    generic.CreateView,
+):
+    model = Genre
+    fields = ["name"]
+    success_url = reverse_lazy("vault:genre-list")
+    success_message = "Genre was successfully created!"
+
+
+class GenreUpdateView(
+    LoginRequiredMixin,
+    SuccessMessageMixin,
+    generic.UpdateView,
+):
+    model = Genre
+    fields = ["name"]
+    success_url = reverse_lazy("vault:genre-list")
+    success_message = "Genre was successfully updated!"
+
+
+class GenreDeleteView(
+    LoginRequiredMixin,
+    SuccessMessageMixin,
+    generic.DeleteView,
+):
+    model = Genre
+    success_url = reverse_lazy("vault:genre-list")
+    success_message = "Genre was successfully deleted!"
