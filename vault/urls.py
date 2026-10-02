@@ -12,6 +12,9 @@ from vault.views import (
     PlatformUpdateView,
     PlatformDeleteView,
     DeveloperListView,
+    DeveloperCreateView,
+    DeveloperUpdateView,
+    DeveloperDeleteView,
 )
 
 urlpatterns = [
@@ -46,6 +49,21 @@ urlpatterns = [
         name="platform-delete",
     ),
     path("developers/", DeveloperListView.as_view(), name="developer-list"),
+    path(
+        "developers/create/",
+        DeveloperCreateView.as_view(),
+        name="developer-create",
+    ),
+    path(
+        "developers/<int:pk>/update/",
+        DeveloperUpdateView.as_view(),
+        name="developer-update",
+    ),
+    path(
+        "developers/<int:pk>/delete/",
+        DeveloperDeleteView.as_view(),
+        name="developer-delete",
+    ),
 ]
 
 app_name = "vault"

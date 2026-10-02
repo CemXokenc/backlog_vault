@@ -96,7 +96,9 @@ class PlatformListView(LoginRequiredMixin, SearchMixin, generic.ListView):
 
 
 class PlatformCreateView(
-    LoginRequiredMixin, SuccessMessageMixin, generic.CreateView
+    LoginRequiredMixin,
+    SuccessMessageMixin,
+    generic.CreateView,
 ):
     model = Platform
     fields = ["name"]
@@ -127,7 +129,40 @@ class PlatformDeleteView(
 
 class DeveloperListView(LoginRequiredMixin, SearchMixin, generic.ListView):
     queryset = Developer.objects.annotate(num_games=Count("games")).order_by(
-        "name", "country"
+        "name",
+        "country",
     )
     paginate_by = 10
     search_placeholder = "Search developers"
+
+
+class DeveloperCreateView(
+    LoginRequiredMixin,
+    SuccessMessageMixin,
+    generic.CreateView,
+):
+    model = Developer
+    fields = ["name", "country"]
+    success_url = reverse_lazy("vault:developer-list")
+    success_message = "Developer was successfully created!"
+
+
+class DeveloperUpdateView(
+    LoginRequiredMixin,
+    SuccessMessageMixin,
+    generic.UpdateView,
+):
+    model = Developer
+    fields = ["name", "country"]
+    success_url = reverse_lazy("vault:developer-list")
+    success_message = "Developer was successfully updated!"
+
+
+class DeveloperDeleteView(
+    LoginRequiredMixin,
+    SuccessMessageMixin,
+    generic.DeleteView,
+):
+    model = Developer
+    success_url = reverse_lazy("vault:developer-list")
+    success_message = "Developer was successfully deleted!"
