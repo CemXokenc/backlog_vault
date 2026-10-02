@@ -7,6 +7,7 @@ from vault.views import (
     GenreCreateView,
     GenreUpdateView,
     GenreDeleteView,
+    PlatformListView,
 )
 
 urlpatterns = [
@@ -24,6 +25,7 @@ urlpatterns = [
         GenreDeleteView.as_view(),
         name="genre-delete",
     ),
+    path("platforms/", PlatformListView.as_view(), name="platform-list"),
 ]
 
 app_name = "vault"

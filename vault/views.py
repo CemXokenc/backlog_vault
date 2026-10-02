@@ -85,3 +85,11 @@ class GenreDeleteView(
     model = Genre
     success_url = reverse_lazy("vault:genre-list")
     success_message = "Genre was successfully deleted!"
+
+
+class PlatformListView(LoginRequiredMixin, SearchMixin, generic.ListView):
+    queryset = Platform.objects.annotate(num_games=Count("games")).order_by(
+        "name",
+    )
+    paginate_by = 10
+    search_placeholder = "Search platforms"

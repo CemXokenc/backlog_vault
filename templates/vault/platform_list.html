@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Platforms{% endblock %}
+
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Platforms</h1>
+    <a class="btn btn-primary" href="{% url 'vault:platform-create' %}">
+      <i class="bi bi-plus-lg"></i> Add platform
+    </a>
+  </div>
+
+  <form method="get" class="row g-2 mb-3">
+    <div class="col-sm-8 col-md-6">{{ search_form.query }}</div>
+    <div class="col-auto">
+      <button type="submit" class="btn btn-outline-primary">Search</button>
+    </div>
+  </form>
+
+  {% if platform_list %}
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th class="text-center">Games</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for platform in platform_list %}
+            <tr>
+              <td>{{ platform.name }}</td>
+              <td class="text-center">{{ platform.num_games }}</td>
+              <td class="text-end">
+                <a class="btn btn-sm btn-outline-secondary"
+                   href="{% url 'vault:platform-update' platform.pk %}" title="Edit">
+                  <i class="bi bi-pencil"></i>
+                </a>
+                <a class="btn btn-sm btn-outline-danger"
+                   href="{% url 'vault:platform-delete' platform.pk %}" title="Delete">
+                  <i class="bi bi-trash"></i>
+                </a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="text-body-secondary">No platforms found.</p>
+  {% endif %}
+
+  {% include "includes/pagination.html" %}
+{% endblock %}
