@@ -10,3 +10,5 @@ pyflakes==4.0.1
 setuptools==84.0.0
 sqlparse==0.6.0
 tzdata==2026.4
+django-crispy-forms==2.7
+crispy-bootstrap5==2026.9
