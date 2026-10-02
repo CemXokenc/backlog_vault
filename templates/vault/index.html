@@ -3,6 +3,29 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-  <h1 class="h3">Welcome, {{ user.nickname|default:user.username }}!</h1>
-  <p class="text-body-secondary">Your game library will live here.</p>
+  <div class="mb-4">
+    <h1 class="h3 mb-1">Welcome, {{ user.nickname|default:user.username }}!</h1>
+    <p class="text-body-secondary mb-0">
+      Keep track of your games, ratings and playtime in one place.
+    </p>
+  </div>
+
+  <h2 class="h5 mb-3">Catalog</h2>
+  <div class="row g-3 mb-4">
+    {% include "includes/stat_card.html" with icon="controller" value=num_games label="Games" %}
+    {% include "includes/stat_card.html" with icon="tags" value=num_genres label="Genres" %}
+    {% include "includes/stat_card.html" with icon="pc-display" value=num_platforms label="Platforms" %}
+    {% include "includes/stat_card.html" with icon="building" value=num_developers label="Developers" %}
+  </div>
+
+  <h2 class="h5 mb-3">Your library</h2>
+  <div class="row g-3 mb-4">
+    {% include "includes/stat_card.html" with icon="collection" value=my_library.total label="In library" cols=4 %}
+    {% include "includes/stat_card.html" with icon="play-circle" value=my_library.playing label="Playing now" cols=4 %}
+    {% include "includes/stat_card.html" with icon="trophy" value=my_library.completed label="Completed" cols=4 %}
+  </div>
+
+  <p class="text-body-secondary small">
+    You have visited this page {{ num_visits }} time{{ num_visits|pluralize }}.
+  </p>
 {% endblock %}
