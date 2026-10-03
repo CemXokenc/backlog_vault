@@ -31,13 +31,13 @@ class GameFilterForm(SearchForm):
         queryset=Genre.objects.all(),
         required=False,
         empty_label="All genres",
-        widget=forms.Select(attrs={"class": "form-control"}),
+        widget=forms.Select(attrs={"class": "form-select"}),
     )
     platform = forms.ModelChoiceField(
         queryset=Platform.objects.all(),
         required=False,
         empty_label="All platforms",
-        widget=forms.Select(attrs={"class": "form-control"}),
+        widget=forms.Select(attrs={"class": "form-select"}),
     )
 
 
