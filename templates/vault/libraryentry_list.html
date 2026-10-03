@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}My library{% endblock %}
+
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">My library</h1>
+    <a class="btn btn-outline-primary" href="{% url 'vault:game-list' %}">
+      <i class="bi bi-controller"></i> Browse catalog
+    </a>
+  </div>
+
+  <ul class="nav nav-pills mb-3">
+    {% for tab in tabs %}
+      <li class="nav-item">
+        <a class="nav-link {% if tab.status == current_status %}active{% endif %}"
+           href="?status={{ tab.status }}">
+          {{ tab.label }} <span class="badge text-bg-secondary ms-1">{{ tab.count }}</span>
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+
+  {% if entries %}
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead>
+          <tr>
+            <th>Game</th>
+            <th>Status</th>
+            <th class="text-center">Rating</th>
+            <th class="text-center">Hours</th>
+            <th>Platform</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for entry in entries %}
+            <tr>
+              <td>
+                <a href="{% url 'vault:game-detail' entry.game.pk %}">{{ entry.game.title }}</a>
+              </td>
+              <td>
+                <span class="badge
+                  {% if entry.status == 'completed' %}text-bg-success
+                  {% elif entry.status == 'playing' %}text-bg-primary
+                  {% elif entry.status == 'dropped' %}text-bg-danger
+                  {% else %}text-bg-secondary{% endif %}">
+                  {{ entry.get_status_display }}
+                </span>
+              </td>
+              <td class="text-center">{{ entry.rating|default:"–" }}</td>
+              <td class="text-center">{{ entry.hours_played }}</td>
+              <td>{{ entry.platform|default:"–" }}</td>
+              <td class="text-end text-nowrap">
+                {% comment "Uncomment in commit 5 (library-update)" %}
+                <a class="btn btn-sm btn-outline-secondary"
+                   href="{% url 'vault:library-update' entry.pk %}" title="Edit">
+                  <i class="bi bi-pencil"></i>
+                </a>
+                {% endcomment %}
+                {% comment "Uncomment in commit 6 (library-delete)" %}
+                <a class="btn btn-sm btn-outline-danger"
+                   href="{% url 'vault:library-delete' entry.pk %}" title="Remove">
+                  <i class="bi bi-trash"></i>
+                </a>
+                {% endcomment %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="text-body-secondary">
+      Nothing here yet. Open a game in the
+      <a href="{% url 'vault:game-list' %}">catalog</a> and add it to your library.
+    </p>
+  {% endif %}
+
+  {% include "includes/pagination.html" %}
+{% endblock %}

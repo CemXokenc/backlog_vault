@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Remove from library{% endblock %}
+
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-5">
+      <div class="card shadow-sm border-danger">
+        <div class="card-body p-4">
+          <h1 class="h4 mb-3">Remove from library</h1>
+          <p>Remove <strong>{{ object.game.title }}</strong> from your library?</p>
+          <p class="text-body-secondary small">
+            Your status, rating, hours and notes for this game will be lost.
+            The game itself stays in the catalog.
+          </p>
+          <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Yes, remove</button>
+            <a class="btn btn-outline-secondary" href="{% url 'vault:library-list' %}">Cancel</a>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
