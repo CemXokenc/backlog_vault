@@ -1,13 +1,19 @@
+from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Count, Q, Avg
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views import generic
 
-from vault.forms import GamerCreationForm, GameFilterForm, GameForm
+from vault.forms import (
+    GamerCreationForm,
+    GameFilterForm,
+    GameForm,
+    LibraryEntryForm,
+)
 from vault.mixins import SearchMixin
 from vault.models import LibraryEntry, Game, Genre, Platform, Developer
 
@@ -231,6 +237,10 @@ class GameDetailView(
         context["entries"] = LibraryEntry.objects.filter(
             game=self.object,
         ).select_related("gamer", "platform")
+        context["my_entry"] = LibraryEntry.objects.filter(
+            gamer=self.request.user,
+            game=self.object,
+        ).first()
 
         return context
 
@@ -290,7 +300,7 @@ class LibraryEntryListView(
             LibraryEntry.objects.filter(gamer=self.request.user)
             .order_by()
             .values_list("status")
-            .annotate(total=Count("id"))
+            .annotate(total=Count("id")),
         )
         tabs = [{"status": "", "label": "All", "count": sum(counts.values())}]
 
@@ -300,7 +310,7 @@ class LibraryEntryListView(
                     "status": status,
                     "label": label,
                     "count": counts.get(status, 0),
-                }
+                },
             )
         current_status = self.request.GET.get("status", "")
         if current_status not in LibraryEntry.Status.values:
@@ -309,3 +319,36 @@ class LibraryEntryListView(
         context["current_status"] = current_status
 
         return context
+
+
+class LibraryEntryCreateView(
+    LoginRequiredMixin,
+    SuccessMessageMixin,
+    generic.CreateView,
+):
+    model = LibraryEntry
+    form_class = LibraryEntryForm
+    success_message = "Game was added to your library!"
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            self.game = get_object_or_404(Game, pk=kwargs["game_pk"])
+            existing = LibraryEntry.objects.filter(
+                gamer=request.user,
+                game=self.game,
+            ).first()
+            if existing:
+                messages.info(request, "This game is already in your library.")
+                return redirect("vault:library-update", pk=existing.pk)
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["instance"] = LibraryEntry(
+            gamer=self.request.user,
+            game=self.game,
+        )
+        return kwargs
+
+    def get_success_url(self):
+        return self.game.get_absolute_url()

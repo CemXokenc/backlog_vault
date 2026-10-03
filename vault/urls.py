@@ -21,6 +21,7 @@ from vault.views import (
     GameUpdateView,
     GameDeleteView,
     LibraryEntryListView,
+    LibraryEntryCreateView,
 )
 
 urlpatterns = [
@@ -88,6 +89,11 @@ urlpatterns = [
         name="game-delete",
     ),
     path("library/", LibraryEntryListView.as_view(), name="library-list"),
+    path(
+        "games/<int:game_pk>/library/add/",
+        LibraryEntryCreateView.as_view(),
+        name="library-create",
+    ),
 ]
 
 app_name = "vault"

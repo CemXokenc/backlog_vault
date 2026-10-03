@@ -95,11 +95,9 @@
           </span>
         </div>
       {% else %}
-        {% comment "Uncomment in commit 4 (library-create)" %}
         <a class="btn btn-primary mb-3" href="{% url 'vault:library-create' game.pk %}">
           <i class="bi bi-plus-lg"></i> Add to library
         </a>
-        {% endcomment %}
       {% endif %}
 
       {% if game.description %}
