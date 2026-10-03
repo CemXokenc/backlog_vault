@@ -368,3 +368,18 @@ class LibraryEntryUpdateView(
         return LibraryEntry.objects.filter(
             gamer=self.request.user,
         ).select_related("game")
+
+
+class LibraryEntryDeleteView(
+    LoginRequiredMixin,
+    SuccessMessageMixin,
+    generic.DeleteView,
+):
+    model = LibraryEntry
+    success_url = reverse_lazy("vault:library-list")
+    success_message = "Game was removed from your library."
+
+    def get_queryset(self):
+        return LibraryEntry.objects.filter(
+            gamer=self.request.user,
+        ).select_related("game")

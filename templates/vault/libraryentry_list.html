@@ -57,12 +57,10 @@
                    href="{% url 'vault:library-update' entry.pk %}" title="Edit">
                   <i class="bi bi-pencil"></i>
                 </a>
-                {% comment "Uncomment in commit 6 (library-delete)" %}
                 <a class="btn btn-sm btn-outline-danger"
                    href="{% url 'vault:library-delete' entry.pk %}" title="Remove">
                   <i class="bi bi-trash"></i>
                 </a>
-                {% endcomment %}
               </td>
             </tr>
           {% endfor %}

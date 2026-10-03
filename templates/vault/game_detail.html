@@ -85,11 +85,9 @@
             <a class="btn btn-sm btn-outline-secondary" href="{% url 'vault:library-update' my_entry.pk %}" title="Edit entry">
               <i class="bi bi-pencil"></i>
             </a>
-            {% comment "Uncomment in commit 6 (library-delete)" %}
             <a class="btn btn-sm btn-outline-danger" href="{% url 'vault:library-delete' my_entry.pk %}" title="Remove from library">
               <i class="bi bi-trash"></i>
             </a>
-            {% endcomment %}
           </span>
         </div>
       {% else %}
