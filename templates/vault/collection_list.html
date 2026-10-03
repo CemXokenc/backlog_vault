@@ -5,11 +5,9 @@
 {% block content %}
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="h3 mb-0">Collections</h1>
-    {% comment "Uncomment in commit 5 (collection-create)" %}
     <a class="btn btn-primary" href="{% url 'vault:collection-create' %}">
       <i class="bi bi-plus-lg"></i> New collection
     </a>
-    {% endcomment %}
   </div>
 
   <ul class="nav nav-pills mb-3">

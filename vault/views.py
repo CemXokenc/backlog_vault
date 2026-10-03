@@ -13,6 +13,7 @@ from vault.forms import (
     GameFilterForm,
     GameForm,
     LibraryEntryForm,
+    CollectionForm,
 )
 from vault.mixins import SearchMixin
 from vault.models import (
@@ -351,6 +352,7 @@ class LibraryEntryCreateView(
             if existing:
                 messages.info(request, "This game is already in your library.")
                 return redirect("vault:library-update", pk=existing.pk)
+
         return super().dispatch(request, *args, **kwargs)
 
     def get_form_kwargs(self):
@@ -359,6 +361,7 @@ class LibraryEntryCreateView(
             gamer=self.request.user,
             game=self.game,
         )
+
         return kwargs
 
     def get_success_url(self):
@@ -410,11 +413,13 @@ class CollectionListView(LoginRequiredMixin, SearchMixin, generic.ListView):
         queryset = super().get_queryset()
         if self.request.GET.get("mine"):
             queryset = queryset.filter(owner=self.request.user)
+
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["mine"] = bool(self.request.GET.get("mine"))
+
         return context
 
 
@@ -438,4 +443,20 @@ class CollectionDetailView(LoginRequiredMixin, generic.DetailView):
             context["available_games"] = Game.objects.exclude(
                 collections=self.object,
             ).order_by("title")
+
         return context
+
+
+class CollectionCreateView(
+    LoginRequiredMixin,
+    SuccessMessageMixin,
+    generic.CreateView,
+):
+    model = Collection
+    form_class = CollectionForm
+    success_message = "Collection was created!"
+
+    def form_valid(self, form):
+        form.instance.owner = self.request.user
+
+        return super().form_valid(form)
