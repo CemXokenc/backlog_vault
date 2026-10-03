@@ -11,7 +11,7 @@
           <p>Are you sure you want to delete <strong>{{ object.name }}</strong>?</p>
           <p class="text-body-secondary small">
             {{ object.games.count }} game(s) will stay in the catalog but lose this platform.
-            Gamers who chose it as their favorite will have that field cleared.
+            Library entries that used it will simply have no platform.
           </p>
           <form method="post">
             {% csrf_token %}

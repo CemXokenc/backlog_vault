@@ -10,8 +10,7 @@
           <h1 class="h4 mb-3">Delete developer</h1>
           <p>Are you sure you want to delete <strong>{{ object.name }}</strong>?</p>
           <p class="text-body-secondary small">
-            {{ object.games.count }} game(s) will stay in the catalog but lose this developer.
-            Gamers who chose it as their favorite will have that field cleared.
+            {{ object.games.count }} game(s) will stay in the catalog without a developer.
           </p>
           <form method="post">
             {% csrf_token %}
