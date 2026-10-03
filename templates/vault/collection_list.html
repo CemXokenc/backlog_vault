@@ -50,10 +50,8 @@
               <i class="bi bi-controller"></i>
               {{ collection.num_games }} game{{ collection.num_games|pluralize }}
             </div>
-            {% comment "Uncomment in commit 4 (collection-detail)" %}
             <a class="stretched-link" href="{% url 'vault:collection-detail' collection.pk %}"
                aria-label="Open {{ collection.title }}"></a>
-            {% endcomment %}
           </div>
         </div>
       {% endfor %}

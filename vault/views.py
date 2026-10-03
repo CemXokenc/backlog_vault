@@ -249,6 +249,10 @@ class GameDetailView(
             game=self.object,
         ).first()
 
+        context["game_collections"] = self.object.collections.select_related(
+            "owner",
+        )
+
         return context
 
 
@@ -411,4 +415,27 @@ class CollectionListView(LoginRequiredMixin, SearchMixin, generic.ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["mine"] = bool(self.request.GET.get("mine"))
+        return context
+
+
+class CollectionDetailView(LoginRequiredMixin, generic.DetailView):
+    queryset = Collection.objects.select_related("owner")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        is_owner = self.object.owner_id == self.request.user.pk
+        context["is_owner"] = is_owner
+        context["games"] = (
+            self.object.games.select_related("developer")
+            .prefetch_related("genres")
+            .annotate(
+                avg_rating=Avg("library_entries__rating"),
+                num_players=Count("library_entries"),
+            )
+            .order_by("-release_year", "title")
+        )
+        if is_owner:
+            context["available_games"] = Game.objects.exclude(
+                collections=self.object,
+            ).order_by("title")
         return context
