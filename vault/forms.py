@@ -1,7 +1,7 @@
 from django.contrib.auth.forms import UserCreationForm
 from django import forms
 
-from vault.models import Gamer, Genre, Platform, Game, LibraryEntry
+from vault.models import Gamer, Genre, Platform, Game, LibraryEntry, Collection
 
 
 class GamerCreationForm(UserCreationForm):
@@ -104,3 +104,10 @@ class LibraryEntryForm(forms.ModelForm):
             )
 
         return self.cleaned_data
+
+
+class CollectionForm(forms.ModelForm):
+    class Meta:
+        model = Collection
+        fields = ["title", "description"]
+        widgets = {"description": forms.Textarea(attrs={"rows": 3})}
