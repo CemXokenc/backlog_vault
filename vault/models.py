@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.db.models import Q, F
+from django.urls import reverse
 
 from vault.validators import (
     validate_release_year,
@@ -113,6 +114,9 @@ class Game(models.Model):
 
     def __str__(self):
         return f"{self.title} ({self.release_year})"
+
+    def get_absolute_url(self):
+        return reverse("vault:game-detail", args=[self.pk])
 
 
 class LibraryEntry(models.Model):

@@ -6,8 +6,9 @@ from django.db.models import Count, Q, Avg
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views import generic
+from django.views.generic import DetailView
 
-from vault.forms import GamerCreationForm
+from vault.forms import GamerCreationForm, GameFilterForm
 from vault.mixins import SearchMixin
 from vault.models import LibraryEntry, Game, Genre, Platform, Developer
 
@@ -194,6 +195,42 @@ class GameListView(
         )
         .order_by("-release_year", "title")
     )
+    form_class = GameFilterForm
     search_field = "title"
     paginate_by = 12
     search_placeholder = "Search games"
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        form = self.form_class(self.request.GET)
+        if form.is_valid():
+            if form.cleaned_data["genre"]:
+                queryset = queryset.filter(genres=form.cleaned_data["genre"])
+            if form.cleaned_data["platform"]:
+                queryset = queryset.filter(
+                    platforms=form.cleaned_data["platform"],
+                )
+
+        return queryset
+
+
+class GameDetailView(
+    LoginRequiredMixin,
+    DetailView,
+):
+    queryset = (
+        Game.objects.select_related("developer")
+        .prefetch_related("genres", "platforms")
+        .annotate(
+            avg_rating=Avg("library_entries__rating"),
+            num_players=Count("library_entries"),
+        )
+    )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["entries"] = LibraryEntry.objects.filter(
+            game=self.object,
+        ).select_related("gamer", "platform")
+
+        return context
