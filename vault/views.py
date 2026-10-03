@@ -473,3 +473,16 @@ class CollectionUpdateView(
 
     def get_queryset(self):
         return Collection.objects.filter(owner=self.request.user)
+
+
+class CollectionDeleteView(
+    LoginRequiredMixin,
+    SuccessMessageMixin,
+    generic.DeleteView,
+):
+    model = Collection
+    success_url = reverse_lazy("vault:collection-list")
+    success_message = "Collection was deleted."
+
+    def get_queryset(self):
+        return Collection.objects.filter(owner=self.request.user)
