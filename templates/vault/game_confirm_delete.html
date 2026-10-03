@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Delete game{% endblock %}
+
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-5">
+      <div class="card shadow-sm border-danger">
+        <div class="card-body p-4">
+          <h1 class="h4 mb-3">Delete game</h1>
+          <p>Are you sure you want to delete <strong>{{ object.title }}</strong>?</p>
+          <p class="text-body-secondary small">
+            This will also remove it from {{ object.library_entries.count }} gamer librar{{ object.library_entries.count|pluralize:"y,ies" }}
+            (with their ratings and notes) and from {{ object.collections.count }} collection{{ object.collections.count|pluralize }}.
+            This cannot be undone.
+          </p>
+          <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Yes, delete</button>
+            <a class="btn btn-outline-secondary" href="{% url 'vault:game-detail' object.pk %}">Cancel</a>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

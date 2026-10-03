@@ -253,3 +253,13 @@ class GameUpdateView(
     model = Game
     form_class = GameForm
     success_message = "Game was successfully updated!"
+
+
+class GameDeleteView(
+    LoginRequiredMixin,
+    SuccessMessageMixin,
+    generic.DeleteView,
+):
+    model = Game
+    success_url = reverse_lazy("vault:game-list")
+    success_message = "Game was successfully deleted!"
