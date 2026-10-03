@@ -460,3 +460,16 @@ class CollectionCreateView(
         form.instance.owner = self.request.user
 
         return super().form_valid(form)
+
+
+class CollectionUpdateView(
+    LoginRequiredMixin,
+    SuccessMessageMixin,
+    generic.UpdateView,
+):
+    model = Collection
+    form_class = CollectionForm
+    success_message = "Collection was updated!"
+
+    def get_queryset(self):
+        return Collection.objects.filter(owner=self.request.user)

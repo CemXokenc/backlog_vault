@@ -27,6 +27,7 @@ from vault.views import (
     CollectionListView,
     CollectionDetailView,
     CollectionCreateView,
+    CollectionUpdateView,
 )
 
 urlpatterns = [
@@ -119,6 +120,11 @@ urlpatterns = [
         "collections/create/",
         CollectionCreateView.as_view(),
         name="collection-create",
+    ),
+    path(
+        "collections/update/",
+        CollectionUpdateView.as_view(),
+        name="collection-update",
     ),
 ]
 

@@ -23,11 +23,9 @@
     </div>
     {% if is_owner %}
       <div class="text-nowrap">
-        {% comment "Uncomment in commit 6 (collection-update)" %}
         <a class="btn btn-sm btn-outline-secondary" href="{% url 'vault:collection-update' collection.pk %}" title="Edit">
           <i class="bi bi-pencil"></i>
         </a>
-        {% endcomment %}
         {% comment "Uncomment in commit 7 (collection-delete)" %}
         <a class="btn btn-sm btn-outline-danger" href="{% url 'vault:collection-delete' collection.pk %}" title="Delete">
           <i class="bi bi-trash"></i>
