@@ -6,12 +6,13 @@ from vault.forms import SearchForm
 class SearchMixin(MultipleObjectMixin):
     """Adds a search box (?query=...) to a ListView."""
 
+    form_class = SearchForm
     search_field = "name"
     search_placeholder = "Search by name"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["search_form"] = SearchForm(
+        context["search_form"] = self.form_class(
             self.request.GET,
             placeholder=self.search_placeholder,
         )
@@ -19,7 +20,7 @@ class SearchMixin(MultipleObjectMixin):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        form = SearchForm(self.request.GET)
+        form = self.form_class(self.request.GET)
         if form.is_valid() and form.cleaned_data["query"]:
             lookup = {
                 f"{self.search_field}__icontains": form.cleaned_data["query"]

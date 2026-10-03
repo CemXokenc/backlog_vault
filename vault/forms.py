@@ -1,7 +1,7 @@
 from django.contrib.auth.forms import UserCreationForm
 from django import forms
 
-from vault.models import Gamer
+from vault.models import Gamer, Genre, Platform
 
 
 class GamerCreationForm(UserCreationForm):
@@ -24,3 +24,18 @@ class SearchForm(forms.Form):
     def __init__(self, *args, placeholder="Search...", **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["query"].widget.attrs["placeholder"] = placeholder
+
+
+class GameFilterForm(SearchForm):
+    genre = forms.ModelChoiceField(
+        queryset=Genre.objects.all(),
+        required=False,
+        empty_label="All genres",
+        widget=forms.Select(attrs={"class": "form-control"}),
+    )
+    platform = forms.ModelChoiceField(
+        queryset=Platform.objects.all(),
+        required=False,
+        empty_label="All platforms",
+        widget=forms.Select(attrs={"class": "form-control"}),
+    )
