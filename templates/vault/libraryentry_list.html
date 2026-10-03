@@ -53,12 +53,10 @@
               <td class="text-center">{{ entry.hours_played }}</td>
               <td>{{ entry.platform|default:"–" }}</td>
               <td class="text-end text-nowrap">
-                {% comment "Uncomment in commit 5 (library-update)" %}
                 <a class="btn btn-sm btn-outline-secondary"
                    href="{% url 'vault:library-update' entry.pk %}" title="Edit">
                   <i class="bi bi-pencil"></i>
                 </a>
-                {% endcomment %}
                 {% comment "Uncomment in commit 6 (library-delete)" %}
                 <a class="btn btn-sm btn-outline-danger"
                    href="{% url 'vault:library-delete' entry.pk %}" title="Remove">

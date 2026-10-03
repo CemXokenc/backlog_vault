@@ -352,3 +352,19 @@ class LibraryEntryCreateView(
 
     def get_success_url(self):
         return self.game.get_absolute_url()
+
+
+class LibraryEntryUpdateView(
+    LoginRequiredMixin,
+    SuccessMessageMixin,
+    generic.UpdateView,
+):
+    model = LibraryEntry
+    form_class = LibraryEntryForm
+    success_url = reverse_lazy("vault:library-list")
+    success_message = "Library entry was updated!"
+
+    def get_queryset(self):
+        return LibraryEntry.objects.filter(
+            gamer=self.request.user,
+        ).select_related("game")
