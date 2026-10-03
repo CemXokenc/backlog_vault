@@ -1,7 +1,7 @@
 from django.contrib.auth.forms import UserCreationForm
 from django import forms
 
-from vault.models import Gamer, Genre, Platform
+from vault.models import Gamer, Genre, Platform, Game
 
 
 class GamerCreationForm(UserCreationForm):
@@ -39,3 +39,22 @@ class GameFilterForm(SearchForm):
         empty_label="All platforms",
         widget=forms.Select(attrs={"class": "form-control"}),
     )
+
+
+class GameForm(forms.ModelForm):
+    class Meta:
+        model = Game
+        fields = [
+            "title",
+            "release_year",
+            "developer",
+            "genres",
+            "platforms",
+            "description",
+            "cover_url",
+        ]
+        widgets = {
+            "genres": forms.CheckboxSelectMultiple,
+            "platforms": forms.CheckboxSelectMultiple,
+            "description": forms.Textarea(attrs={"rows": 4}),
+        }
