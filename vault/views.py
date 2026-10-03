@@ -263,3 +263,49 @@ class GameDeleteView(
     model = Game
     success_url = reverse_lazy("vault:game-list")
     success_message = "Game was successfully deleted!"
+
+
+class LibraryEntryListView(
+    LoginRequiredMixin,
+    generic.ListView,
+):
+    context_object_name = "entries"
+    paginate_by = 10
+
+    def get_queryset(self):
+        queryset = (
+            LibraryEntry.objects.filter(gamer=self.request.user)
+            .select_related("game", "platform")
+            .order_by("-id")
+        )
+        status = self.request.GET.get("status")
+        if status in LibraryEntry.Status.values:
+            queryset = queryset.filter(status=status)
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        counts = dict(
+            LibraryEntry.objects.filter(gamer=self.request.user)
+            .order_by()
+            .values_list("status")
+            .annotate(total=Count("id"))
+        )
+        tabs = [{"status": "", "label": "All", "count": sum(counts.values())}]
+
+        for status, label in LibraryEntry.Status.choices:
+            tabs.append(
+                {
+                    "status": status,
+                    "label": label,
+                    "count": counts.get(status, 0),
+                }
+            )
+        current_status = self.request.GET.get("status", "")
+        if current_status not in LibraryEntry.Status.values:
+            current_status = ""
+        context["tabs"] = tabs
+        context["current_status"] = current_status
+
+        return context
