@@ -23,7 +23,7 @@ from vault.views import (
     LibraryEntryListView,
     LibraryEntryCreateView,
     LibraryEntryUpdateView,
-    LibraryEntryDeleteView,
+    LibraryEntryDeleteView, CollectionListView,
 )
 
 urlpatterns = [
@@ -106,6 +106,7 @@ urlpatterns = [
         LibraryEntryDeleteView.as_view(),
         name="library-delete",
     ),
+    path("collections/", CollectionListView.as_view(), name="collection-list")
 ]
 
 app_name = "vault"

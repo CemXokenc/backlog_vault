@@ -15,7 +15,14 @@ from vault.forms import (
     LibraryEntryForm,
 )
 from vault.mixins import SearchMixin
-from vault.models import LibraryEntry, Game, Genre, Platform, Developer
+from vault.models import (
+    LibraryEntry,
+    Game,
+    Genre,
+    Platform,
+    Developer,
+    Collection,
+)
 
 
 @login_required
@@ -383,3 +390,25 @@ class LibraryEntryDeleteView(
         return LibraryEntry.objects.filter(
             gamer=self.request.user,
         ).select_related("game")
+
+
+class CollectionListView(LoginRequiredMixin, SearchMixin, generic.ListView):
+    queryset = (
+        Collection.objects.select_related("owner")
+        .annotate(num_games=Count("games"))
+        .order_by("title")
+    )
+    search_field = "title"
+    search_placeholder = "Search collections"
+    paginate_by = 9
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if self.request.GET.get("mine"):
+            queryset = queryset.filter(owner=self.request.user)
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["mine"] = bool(self.request.GET.get("mine"))
+        return context
