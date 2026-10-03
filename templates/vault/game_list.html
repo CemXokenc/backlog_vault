@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}Catalog{% endblock %}
+
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Game catalog</h1>
+    <a class="btn btn-primary" href="{% url 'vault:game-create' %}">
+      <i class="bi bi-plus-lg"></i> Add game
+    </a>
+  </div>
+
+  <form method="get" class="row g-2 mb-4">
+    <div class="col-12 col-md-5">{{ search_form.query }}</div>
+    <div class="col-6 col-md-3">{{ search_form.genre }}</div>
+    <div class="col-6 col-md-2">{{ search_form.platform }}</div>
+    <div class="col-12 col-md-auto d-flex gap-2">
+      <button type="submit" class="btn btn-outline-primary">Search</button>
+      <a class="btn btn-outline-secondary" href="{% url 'vault:game-list' %}">Clear</a>
+    </div>
+  </form>
+
+  {% if game_list %}
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3">
+      {% for game in game_list %}
+        {% include "includes/game_card.html" %}
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-body-secondary">No games found.</p>
+  {% endif %}
+
+  {% include "includes/pagination.html" %}
+{% endblock %}

@@ -2,7 +2,7 @@ from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
-from django.db.models import Count, Q
+from django.db.models import Count, Q, Avg
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views import generic
@@ -47,7 +47,11 @@ class RegisterView(generic.CreateView):
         return response
 
 
-class GenreListView(LoginRequiredMixin, SearchMixin, generic.ListView):
+class GenreListView(
+    LoginRequiredMixin,
+    SearchMixin,
+    generic.ListView,
+):
     queryset = Genre.objects.annotate(num_games=Count("games")).order_by(
         "name",
     )
@@ -87,7 +91,11 @@ class GenreDeleteView(
     success_message = "Genre was successfully deleted!"
 
 
-class PlatformListView(LoginRequiredMixin, SearchMixin, generic.ListView):
+class PlatformListView(
+    LoginRequiredMixin,
+    SearchMixin,
+    generic.ListView,
+):
     queryset = Platform.objects.annotate(num_games=Count("games")).order_by(
         "name",
     )
@@ -127,7 +135,11 @@ class PlatformDeleteView(
     success_message = "Platform was successfully deleted!"
 
 
-class DeveloperListView(LoginRequiredMixin, SearchMixin, generic.ListView):
+class DeveloperListView(
+    LoginRequiredMixin,
+    SearchMixin,
+    generic.ListView,
+):
     queryset = Developer.objects.annotate(num_games=Count("games")).order_by(
         "name",
         "country",
@@ -166,3 +178,22 @@ class DeveloperDeleteView(
     model = Developer
     success_url = reverse_lazy("vault:developer-list")
     success_message = "Developer was successfully deleted!"
+
+
+class GameListView(
+    LoginRequiredMixin,
+    SearchMixin,
+    generic.ListView,
+):
+    queryset = (
+        Game.objects.select_related("developer")
+        .prefetch_related("genres")
+        .annotate(
+            avg_rating=Avg("library_entries__rating"),
+            num_players=Count("library_entries"),
+        )
+        .order_by("-release_year", "title")
+    )
+    search_field = "title"
+    paginate_by = 12
+    search_placeholder = "Search games"
