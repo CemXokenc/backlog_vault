@@ -6,9 +6,8 @@ from django.db.models import Count, Q, Avg
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views import generic
-from django.views.generic import DetailView
 
-from vault.forms import GamerCreationForm, GameFilterForm
+from vault.forms import GamerCreationForm, GameFilterForm, GameForm
 from vault.mixins import SearchMixin
 from vault.models import LibraryEntry, Game, Genre, Platform, Developer
 
@@ -216,7 +215,7 @@ class GameListView(
 
 class GameDetailView(
     LoginRequiredMixin,
-    DetailView,
+    generic.DetailView,
 ):
     queryset = (
         Game.objects.select_related("developer")
@@ -234,3 +233,23 @@ class GameDetailView(
         ).select_related("gamer", "platform")
 
         return context
+
+
+class GameCreateView(
+    LoginRequiredMixin,
+    SuccessMessageMixin,
+    generic.CreateView,
+):
+    model = Game
+    form_class = GameForm
+    success_message = "Game was successfully created!"
+
+
+class GameUpdateView(
+    LoginRequiredMixin,
+    SuccessMessageMixin,
+    generic.UpdateView,
+):
+    model = Game
+    form_class = GameForm
+    success_message = "Game was successfully updated!"
