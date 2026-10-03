@@ -29,6 +29,8 @@ from vault.views import (
     CollectionCreateView,
     CollectionUpdateView,
     CollectionDeleteView,
+    collection_add_game,
+    collection_remove_game,
 )
 
 urlpatterns = [
@@ -131,6 +133,16 @@ urlpatterns = [
         "collections/delete/",
         CollectionDeleteView.as_view(),
         name="collection-delete",
+    ),
+    path(
+        "collections/<int:pk>/games/add/",
+        collection_add_game,
+        name="collection-add-game",
+    ),
+    path(
+        "collections/<int:pk>/games/<int:game_pk>/remove/",
+        collection_remove_game,
+        name="collection-remove-game",
     ),
 ]
 

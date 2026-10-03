@@ -23,10 +23,12 @@
     </div>
     {% if is_owner %}
       <div class="text-nowrap">
-        <a class="btn btn-sm btn-outline-secondary" href="{% url 'vault:collection-update' collection.pk %}" title="Edit">
+        <a class="btn btn-sm btn-outline-secondary" href="{% url 'vault:collection-update' collection.pk %}"
+           title="Edit">
           <i class="bi bi-pencil"></i>
         </a>
-        <a class="btn btn-sm btn-outline-danger" href="{% url 'vault:collection-delete' collection.pk %}" title="Delete">
+        <a class="btn btn-sm btn-outline-danger" href="{% url 'vault:collection-delete' collection.pk %}"
+           title="Delete">
           <i class="bi bi-trash"></i>
         </a>
       </div>
@@ -34,7 +36,6 @@
   </div>
 
   {% if is_owner %}
-    {% comment "Uncomment in commit 8 (collection-add-game)" %}
     <form method="post" action="{% url 'vault:collection-add-game' collection.pk %}" class="row g-2 mb-4">
       {% csrf_token %}
       <div class="col-sm-8 col-md-6">
@@ -49,16 +50,13 @@
         <button type="submit" class="btn btn-outline-primary">Add</button>
       </div>
     </form>
-    {% endcomment %}
   {% endif %}
 
   {% if games %}
     <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3">
       {% for game in games %}
         {% if is_owner %}
-          {% comment "Uncomment in commit 8 (collection-remove-game)" %}
           {% url 'vault:collection-remove-game' collection.pk game.pk as remove_url %}
-          {% endcomment %}
         {% endif %}
         {% include "includes/game_card.html" with remove_action=remove_url %}
       {% endfor %}

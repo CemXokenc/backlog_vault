@@ -4,9 +4,12 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Count, Q, Avg
+from django.http import Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views import generic
+from django.views.decorators.http import require_POST
 
 from vault.forms import (
     GamerCreationForm,
@@ -249,10 +252,12 @@ class GameDetailView(
             gamer=self.request.user,
             game=self.object,
         ).first()
-
         context["game_collections"] = self.object.collections.select_related(
             "owner",
         )
+        context["addable_collections"] = Collection.objects.filter(
+            owner=self.request.user,
+        ).exclude(games=self.object)
 
         return context
 
@@ -486,3 +491,44 @@ class CollectionDeleteView(
 
     def get_queryset(self):
         return Collection.objects.filter(owner=self.request.user)
+
+
+@login_required
+@require_POST
+def collection_add_game(request, pk):
+    collection = get_object_or_404(Collection, pk=pk, owner=request.user)
+    game_pk = request.POST.get("game", "")
+    if not game_pk.isdigit():
+        raise Http404("Game not found")
+    game = get_object_or_404(Game, pk=game_pk)
+    if collection.games.filter(pk=game.pk).exists():
+        messages.info(
+            request,
+            f"{game.title} is already in {collection.title}.",
+        )
+    else:
+        collection.games.add(game)
+        messages.success(
+            request,
+            f"{game.title} was added to {collection.title}.",
+        )
+    next_url = request.POST.get("next", "")
+    if url_has_allowed_host_and_scheme(
+        next_url,
+        allowed_hosts={request.get_host()},
+    ):
+        return redirect(next_url)
+    return redirect(collection)
+
+
+@login_required
+@require_POST
+def collection_remove_game(request, pk, game_pk):
+    collection = get_object_or_404(Collection, pk=pk, owner=request.user)
+    game = get_object_or_404(Game, pk=game_pk)
+    collection.games.remove(game)
+    messages.success(
+        request,
+        f"{game.title} was removed from {collection.title}.",
+    )
+    return redirect(collection)
