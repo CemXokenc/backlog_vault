@@ -26,6 +26,7 @@ from vault.models import (
     Platform,
     Developer,
     Collection,
+    Gamer,
 )
 
 
@@ -532,3 +533,22 @@ def collection_remove_game(request, pk, game_pk):
         f"{game.title} was removed from {collection.title}.",
     )
     return redirect(collection)
+
+
+class GamerListView(LoginRequiredMixin, SearchMixin, generic.ListView):
+    queryset = (
+        Gamer.objects.select_related("favorite_genre")
+        .annotate(
+            num_games=Count("library_entries"),
+            num_completed=Count(
+                "library_entries",
+                filter=Q(
+                    library_entries__status=LibraryEntry.Status.COMPLETED,
+                ),
+            ),
+        )
+        .order_by("username")
+    )
+    search_field = "username"
+    search_placeholder = "Search by username"
+    paginate_by = 9
