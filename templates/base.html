@@ -67,6 +67,13 @@
         </ul>
 
         <ul class="navbar-nav align-items-lg-center gap-lg-2">
+          {% if user.is_staff %}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'admin:index' %}">
+                <i class="bi bi-gear"></i> Admin
+              </a>
+            </li>
+          {% endif %}
           <li class="nav-item">
             <button id="theme-toggle" type="button" class="btn btn-outline-secondary btn-sm"
                     aria-label="Toggle theme">
