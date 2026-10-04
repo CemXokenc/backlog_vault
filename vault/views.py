@@ -3,7 +3,7 @@ from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
-from django.db.models import Count, Q, Avg
+from django.db.models import Count, Q, Avg, Sum
 from django.http import Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
@@ -532,6 +532,7 @@ def collection_remove_game(request, pk, game_pk):
         request,
         f"{game.title} was removed from {collection.title}.",
     )
+
     return redirect(collection)
 
 
@@ -552,3 +553,38 @@ class GamerListView(LoginRequiredMixin, SearchMixin, generic.ListView):
     search_field = "username"
     search_placeholder = "Search by username"
     paginate_by = 9
+
+
+class GamerDetailView(LoginRequiredMixin, generic.DetailView):
+    queryset = Gamer.objects.select_related("favorite_genre")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        entries = LibraryEntry.objects.filter(gamer=self.object)
+        status = LibraryEntry.Status
+        stats = entries.order_by().aggregate(
+            total=Count("id"),
+            planned=Count("id", filter=Q(status=status.PLANNED)),
+            playing=Count("id", filter=Q(status=status.PLAYING)),
+            completed=Count("id", filter=Q(status=status.COMPLETED)),
+            dropped=Count("id", filter=Q(status=status.DROPPED)),
+            hours=Sum("hours_played"),
+            avg_rating=Avg("rating"),
+        )
+        stats["hours"] = stats["hours"] or 0
+        context["stats"] = stats
+        context["top_genre"] = (
+            Genre.objects.filter(games__library_entries__gamer=self.object)
+            .annotate(num_games=Count("games", distinct=True))
+            .order_by("-num_games", "name")
+            .first()
+        )
+        context["recent_entries"] = entries.select_related("game").order_by(
+            "-id",
+        )[:5]
+        context["collections"] = self.object.collections.annotate(
+            num_games=Count("games"),
+        )
+        context["is_me"] = self.object.pk == self.request.user.pk
+
+        return context

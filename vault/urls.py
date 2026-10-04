@@ -32,6 +32,7 @@ from vault.views import (
     collection_add_game,
     collection_remove_game,
     GamerListView,
+    GamerDetailView,
 )
 
 urlpatterns = [
@@ -146,6 +147,7 @@ urlpatterns = [
         name="collection-remove-game",
     ),
     path("gamers/", GamerListView.as_view(), name="gamer-list"),
+    path("gamers/<int:pk>/", GamerDetailView.as_view(), name="gamer-detail"),
 ]
 
 app_name = "vault"

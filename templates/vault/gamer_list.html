@@ -37,10 +37,8 @@
               {{ gamer.num_games }} game{{ gamer.num_games|pluralize }}
               &middot; {{ gamer.num_completed }} completed
             </div>
-            {% comment "Uncomment in commit 4 (gamer-detail)" %}
             <a class="stretched-link" href="{% url 'vault:gamer-detail' gamer.pk %}"
                aria-label="Open profile of {{ gamer.username }}"></a>
-            {% endcomment %}
           </div>
         </div>
       {% endfor %}
