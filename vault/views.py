@@ -48,6 +48,8 @@ def index(request):
         "num_genres": Genre.objects.count(),
         "num_platforms": Platform.objects.count(),
         "num_developers": Developer.objects.count(),
+        "num_collections": Collection.objects.count(),
+        "num_gamers": Gamer.objects.count(),
         "my_library": my_library,
     }
 
