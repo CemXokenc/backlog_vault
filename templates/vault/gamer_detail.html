@@ -28,11 +28,9 @@
         <a class="btn btn-outline-primary btn-sm" href="{% url 'vault:library-list' %}">
           <i class="bi bi-collection"></i> My library
         </a>
-        {% comment "Uncomment in commit 5 (gamer-update)" %}
         <a class="btn btn-outline-secondary btn-sm" href="{% url 'vault:gamer-update' gamer.pk %}">
           <i class="bi bi-pencil"></i> Edit profile
         </a>
-        {% endcomment %}
       </div>
     {% endif %}
   </div>

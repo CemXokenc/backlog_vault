@@ -17,6 +17,7 @@ from vault.forms import (
     GameForm,
     LibraryEntryForm,
     CollectionForm,
+    GamerUpdateForm,
 )
 from vault.mixins import SearchMixin
 from vault.models import (
@@ -588,3 +589,16 @@ class GamerDetailView(LoginRequiredMixin, generic.DetailView):
         context["is_me"] = self.object.pk == self.request.user.pk
 
         return context
+
+
+class GamerUpdateView(
+    LoginRequiredMixin,
+    SuccessMessageMixin,
+    generic.UpdateView,
+):
+    model = Gamer
+    form_class = GamerUpdateForm
+    success_message = "Profile was updated!"
+
+    def get_queryset(self):
+        return Gamer.objects.filter(pk=self.request.user.pk)
