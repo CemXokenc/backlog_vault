@@ -32,6 +32,9 @@ class Gamer(AbstractUser):
             return f"{self.username} ({self.nickname})"
         return self.username
 
+    def get_absolute_url(self):
+        return reverse("vault:gamer-detail", args=[self.pk])
+
 
 class Genre(models.Model):
     name = models.CharField(

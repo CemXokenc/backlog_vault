@@ -125,12 +125,12 @@ urlpatterns = [
         name="collection-create",
     ),
     path(
-        "collections/update/",
+        "collections/<int:pk>/update/",
         CollectionUpdateView.as_view(),
         name="collection-update",
     ),
     path(
-        "collections/delete/",
+        "collections/<int:pk>/delete/",
         CollectionDeleteView.as_view(),
         name="collection-delete",
     ),

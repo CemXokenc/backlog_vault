@@ -111,3 +111,10 @@ class CollectionForm(forms.ModelForm):
         model = Collection
         fields = ["title", "description"]
         widgets = {"description": forms.Textarea(attrs={"rows": 3})}
+
+
+class GamerUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Gamer
+        fields = ["nickname", "bio", "favorite_genre"]
+        widgets = {"bio": forms.Textarea(attrs={"rows": 3})}
