@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Gamers{% endblock %}
+
+{% block content %}
+  <h1 class="h3 mb-3">Gamers</h1>
+
+  <form method="get" class="row g-2 mb-4">
+    <div class="col-sm-8 col-md-6">{{ search_form.query }}</div>
+    <div class="col-auto">
+      <button type="submit" class="btn btn-outline-primary">Search</button>
+    </div>
+  </form>
+
+  {% if gamer_list %}
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+      {% for gamer in gamer_list %}
+        <div class="col">
+          <div class="card game-card h-100">
+            <div class="card-body d-flex gap-3 align-items-center">
+              <i class="bi bi-person-circle fs-1 text-primary"></i>
+              <div>
+                <h2 class="h6 mb-0">
+                  {{ gamer.nickname|default:gamer.username }}
+                  {% if gamer.pk == user.pk %}
+                    <span class="badge text-bg-primary ms-1">You</span>
+                  {% endif %}
+                </h2>
+                <p class="small text-body-secondary mb-1">@{{ gamer.username }}</p>
+                {% if gamer.favorite_genre %}
+                  <span class="badge text-bg-secondary">{{ gamer.favorite_genre.name }}</span>
+                {% endif %}
+              </div>
+            </div>
+            <div class="card-footer small text-body-secondary">
+              <i class="bi bi-controller"></i>
+              {{ gamer.num_games }} game{{ gamer.num_games|pluralize }}
+              &middot; {{ gamer.num_completed }} completed
+            </div>
+            {% comment "Uncomment in commit 4 (gamer-detail)" %}
+            <a class="stretched-link" href="{% url 'vault:gamer-detail' gamer.pk %}"
+               aria-label="Open profile of {{ gamer.username }}"></a>
+            {% endcomment %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-body-secondary">No gamers found.</p>
+  {% endif %}
+
+  {% include "includes/pagination.html" %}
+{% endblock %}
