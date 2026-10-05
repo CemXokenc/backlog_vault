@@ -95,3 +95,57 @@ class CoverUploadTests(TestCase):
 
     def test_cover_source_is_empty_without_any_cover(self):
         self.assertEqual(self.catalog.game.cover_source, "")
+
+
+@override_settings(MEDIA_ROOT=MEDIA_ROOT)
+class CoverDisplayTests(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        Path(MEDIA_ROOT).mkdir(parents=True, exist_ok=True)
+
+    @classmethod
+    def tearDownClass(cls):
+        shutil.rmtree(MEDIA_ROOT, ignore_errors=True)
+        super().tearDownClass()
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.gamer = create_gamer()
+        cls.catalog = create_catalog()
+        cls.game = cls.catalog.game
+
+    def setUp(self):
+        self.client.force_login(self.gamer)
+
+    def test_placeholder_without_any_cover(self):
+        for url in (
+            reverse("vault:game-list"),
+            reverse("vault:game-detail", args=[self.game.pk]),
+        ):
+            with self.subTest(url=url):
+                response = self.client.get(url)
+                self.assertContains(response, "bi-image")
+                self.assertNotContains(response, "<img src=")
+
+    def test_cover_url_is_shown_in_card_and_detail(self):
+        self.game.cover_url = "https://example.com/hades.jpg"
+        self.game.save()
+        for url in (
+            reverse("vault:game-list"),
+            reverse("vault:game-detail", args=[self.game.pk]),
+        ):
+            with self.subTest(url=url):
+                response = self.client.get(url)
+                self.assertContains(response, "https://example.com/hades.jpg")
+
+    def test_uploaded_cover_is_shown_in_card_and_detail(self):
+        self.game.cover = make_image()
+        self.game.save()
+        for url in (
+            reverse("vault:game-list"),
+            reverse("vault:game-detail", args=[self.game.pk]),
+        ):
+            with self.subTest(url=url):
+                response = self.client.get(url)
+                self.assertContains(response, self.game.cover.url)

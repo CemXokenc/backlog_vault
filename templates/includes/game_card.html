@@ -1,8 +1,8 @@
 <div class="col">
   <div class="card game-card h-100">
     <div class="cover">
-      {% if game.cover_url %}
-        <img src="{{ game.cover_url }}" alt="{{ game.title }}" loading="lazy">
+      {% if game.cover_source %}
+        <img src="{{ game.cover_source }}" alt="{{ game.title }}" loading="lazy">
       {% else %}
         <i class="bi bi-image"></i>
       {% endif %}
