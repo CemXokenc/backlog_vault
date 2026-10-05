@@ -149,3 +149,51 @@ class CoverDisplayTests(TestCase):
             with self.subTest(url=url):
                 response = self.client.get(url)
                 self.assertContains(response, self.game.cover.url)
+
+
+@override_settings(MEDIA_ROOT=MEDIA_ROOT)
+class CoverCleanupTests(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        Path(MEDIA_ROOT).mkdir(parents=True, exist_ok=True)
+
+    @classmethod
+    def tearDownClass(cls):
+        shutil.rmtree(MEDIA_ROOT, ignore_errors=True)
+        super().tearDownClass()
+
+    def create_game(self, **extra):
+        game = Game.objects.create(title="Temp", release_year=2020, **extra)
+        game.cover = make_image("first.png")
+        game.save()
+        return game
+
+    def test_old_file_is_removed_when_cover_is_replaced(self):
+        game = self.create_game()
+        old_path = Path(game.cover.path)
+        self.assertTrue(old_path.exists())
+        game.cover = make_image("second.png", color="green")
+        game.save()
+        self.assertFalse(old_path.exists())
+        self.assertTrue(Path(game.cover.path).exists())
+
+    def test_file_is_removed_when_cover_is_cleared(self):
+        game = self.create_game()
+        old_path = Path(game.cover.path)
+        game.cover = ""
+        game.save()
+        self.assertFalse(old_path.exists())
+
+    def test_file_is_removed_when_game_is_deleted(self):
+        game = self.create_game()
+        path = Path(game.cover.path)
+        game.delete()
+        self.assertFalse(path.exists())
+
+    def test_saving_without_changes_keeps_the_file(self):
+        game = self.create_game()
+        path = Path(game.cover.path)
+        game.title = "Renamed"
+        game.save()
+        self.assertTrue(path.exists())
