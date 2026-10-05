@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.1/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -19,14 +20,22 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = (
-    "django-insecure-o2=*n0lj@tt9ql2g9)#z=hwuoadn9!2x@&bc)q554tl5)g1gk^"
+# Set DJANGO_SECRET_KEY in the environment; the fallback is for local use only.
+SECRET_KEY = os.environ.get(
+    "DJANGO_SECRET_KEY",
+    "django-insecure-o2=*n0lj@tt9ql2g9)#z=hwuoadn9!2x@&bc)q554tl5)g1gk^",
 )
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# Set DJANGO_DEBUG=0 to turn it off.
+DEBUG = os.environ.get("DJANGO_DEBUG", "1") == "1"
 
-ALLOWED_HOSTS = []
+# Comma separated list, e.g. DJANGO_ALLOWED_HOSTS=example.com,www.example.com
+ALLOWED_HOSTS = [
+    host
+    for host in os.environ.get("DJANGO_ALLOWED_HOSTS", "").split(",")
+    if host
+]
 
 # Application definition
 
