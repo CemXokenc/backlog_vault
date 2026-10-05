@@ -13,6 +13,11 @@ from vault.views import (
 urlpatterns = [
     path("", home.index, name="index"),
     path("register/", accounts.RegisterView.as_view(), name="register"),
+    path(
+        "demo-login/<str:role>/",
+        accounts.demo_login,
+        name="demo-login",
+    ),
     # Reference data
     path(
         "genres/",

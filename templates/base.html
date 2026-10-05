@@ -74,6 +74,27 @@
               </a>
             </li>
           {% endif %}
+          {% if demo_mode %}
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button"
+                 data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-lightning-charge"></i> Demo
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li><h6 class="dropdown-header">Sign in as</h6></li>
+                {% for role, label, icon in demo_roles %}
+                  <li>
+                    <form method="post" action="{% url 'vault:demo-login' role %}">
+                      {% csrf_token %}
+                      <button type="submit" class="dropdown-item">
+                        <i class="bi bi-{{ icon }} me-1"></i> {{ label }}
+                      </button>
+                    </form>
+                  </li>
+                {% endfor %}
+              </ul>
+            </li>
+          {% endif %}
           <li class="nav-item">
             <button id="theme-toggle" type="button" class="btn btn-outline-secondary btn-sm"
                     aria-label="Toggle theme">

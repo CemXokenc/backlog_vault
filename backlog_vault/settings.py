@@ -30,6 +30,10 @@ SECRET_KEY = os.environ.get(
 # Set DJANGO_DEBUG=0 to turn it off.
 DEBUG = os.environ.get("DJANGO_DEBUG", "1") == "1"
 
+# Header buttons that sign in as the demo admin, moderator or user.
+# Enabled together with DEBUG by default; never enable on a public server.
+DEMO_MODE = os.environ.get("DJANGO_DEMO_MODE", "1" if DEBUG else "0") == "1"
+
 # Comma separated list, e.g. DJANGO_ALLOWED_HOSTS=example.com,www.example.com
 ALLOWED_HOSTS = [
     host
@@ -74,6 +78,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "vault.context_processors.demo_mode",
             ],
         },
     },
