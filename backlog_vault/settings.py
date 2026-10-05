@@ -40,6 +40,7 @@ ALLOWED_HOSTS = [
 # Application definition
 
 INSTALLED_APPS = [
+    "unfold",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -156,3 +157,29 @@ LOGOUT_REDIRECT_URL = "login"
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
+
+# Admin theme (django-unfold)
+UNFOLD = {
+    "SITE_TITLE": "Backlog Vault",
+    "SITE_HEADER": "Backlog Vault",
+    "SITE_URL": "/",
+    "SITE_SYMBOL": "sports_esports",
+    "SHOW_HISTORY": True,
+    "SHOW_VIEW_ON_SITE": True,
+    "SIDEBAR": {"show_search": True, "show_all_applications": True},
+    "COLORS": {
+        "primary": {
+            "50": "245 243 255",
+            "100": "237 233 254",
+            "200": "221 214 254",
+            "300": "196 181 253",
+            "400": "167 139 250",
+            "500": "139 92 246",
+            "600": "124 58 237",
+            "700": "109 40 217",
+            "800": "91 33 182",
+            "900": "76 29 149",
+            "950": "46 16 101",
+        },
+    },
+}

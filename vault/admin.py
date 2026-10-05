@@ -1,29 +1,64 @@
 from django.contrib import admin, messages
+from django.contrib.auth.admin import GroupAdmin as BaseGroupAdmin
 from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.models import Group
+from unfold.admin import ModelAdmin
+from unfold.forms import (
+    AdminPasswordChangeForm,
+    UserChangeForm,
+    UserCreationForm,
+)
 
-from vault.roles import MODERATORS_GROUP, ensure_moderators_group
 from vault.models import (
-    Gamer,
-    Genre,
-    Platform,
+    Collection,
     Developer,
     Game,
+    Gamer,
+    Genre,
     LibraryEntry,
-    Collection,
+    Platform,
 )
+from vault.roles import MODERATORS_GROUP, ensure_moderators_group
 
 EXTRA_FIELDS = (
     "Additional info",
     {"fields": ("nickname", "bio", "favorite_genre")},
 )
 
+admin.site.unregister(Group)
+
+
+class GamerAdminCreationForm(UserCreationForm):
+    class Meta(UserCreationForm.Meta):
+        model = Gamer
+
+
+class GamerAdminChangeForm(UserChangeForm):
+    class Meta(UserChangeForm.Meta):
+        model = Gamer
+
+
+@admin.register(Group)
+class GroupAdmin(BaseGroupAdmin, ModelAdmin):
+    pass
+
 
 @admin.register(Gamer)
-class GamerAdmin(UserAdmin):
-    list_display = UserAdmin.list_display + ("nickname",)
+class GamerAdmin(UserAdmin, ModelAdmin):
+    form = GamerAdminChangeForm
+    add_form = GamerAdminCreationForm
+    change_password_form = AdminPasswordChangeForm
+    list_display = (
+        "username",
+        "nickname",
+        "email",
+        "is_active",
+        "is_staff",
+        "date_joined",
+    )
+    list_filter = ("is_active", "is_staff", "is_superuser", "groups")
     fieldsets = UserAdmin.fieldsets + (EXTRA_FIELDS,)
     add_fieldsets = UserAdmin.add_fieldsets + (EXTRA_FIELDS,)
-    list_filter = UserAdmin.list_filter + ("groups",)
     actions = ["activate_gamers", "make_moderators", "remove_moderators"]
 
     @admin.action(description="Activate selected gamers")
@@ -65,30 +100,39 @@ class GamerAdmin(UserAdmin):
 
 
 @admin.register(Genre)
-class GenreAdmin(admin.ModelAdmin):
-    pass
+class GenreAdmin(ModelAdmin):
+    search_fields = ("name",)
 
 
 @admin.register(Platform)
-class PlatformAdmin(admin.ModelAdmin):
-    pass
+class PlatformAdmin(ModelAdmin):
+    search_fields = ("name",)
 
 
 @admin.register(Developer)
-class DeveloperAdmin(admin.ModelAdmin):
-    pass
+class DeveloperAdmin(ModelAdmin):
+    list_display = ("name", "country")
+    list_filter = ("country",)
+    search_fields = ("name", "country")
 
 
 @admin.register(Game)
-class GameAdmin(admin.ModelAdmin):
+class GameAdmin(ModelAdmin):
+    list_display = ("title", "release_year", "developer")
+    list_filter = ("genres", "platforms", "release_year")
+    search_fields = ("title", "developer__name")
     filter_horizontal = ("genres", "platforms")
 
 
 @admin.register(LibraryEntry)
-class LibraryEntryAdmin(admin.ModelAdmin):
-    pass
+class LibraryEntryAdmin(ModelAdmin):
+    list_display = ("gamer", "game", "status", "rating", "hours_played")
+    list_filter = ("status", "platform")
+    search_fields = ("gamer__username", "game__title")
 
 
 @admin.register(Collection)
-class CollectionAdmin(admin.ModelAdmin):
+class CollectionAdmin(ModelAdmin):
+    list_display = ("title", "owner")
+    search_fields = ("title", "owner__username")
     filter_horizontal = ("games",)

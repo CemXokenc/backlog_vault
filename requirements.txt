@@ -13,3 +13,4 @@ tzdata==2026.4
 django-crispy-forms==2.7
 crispy-bootstrap5==2026.9
 pillow==12.1.1
+django-unfold==0.108.0
