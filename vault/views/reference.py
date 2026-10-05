@@ -4,6 +4,7 @@ from django.db.models import Count
 from django.views import generic
 
 from vault.mixins import (
+    ModelPermissionMixin,
     ReferenceMixin,
     SearchMixin,
 )
@@ -25,31 +26,34 @@ class ReferenceListView(
 
 
 class ReferenceCreateView(
-    LoginRequiredMixin,
+    ModelPermissionMixin,
     ReferenceMixin,
     SuccessMessageMixin,
     generic.CreateView,
 ):
+    permission_action = "add"
     template_name = "vault/reference/form.html"
     success_verb = "created"
 
 
 class ReferenceUpdateView(
-    LoginRequiredMixin,
+    ModelPermissionMixin,
     ReferenceMixin,
     SuccessMessageMixin,
     generic.UpdateView,
 ):
+    permission_action = "change"
     template_name = "vault/reference/form.html"
     success_verb = "updated"
 
 
 class ReferenceDeleteView(
-    LoginRequiredMixin,
+    ModelPermissionMixin,
     ReferenceMixin,
     SuccessMessageMixin,
     generic.DeleteView,
 ):
+    permission_action = "delete"
     template_name = "vault/reference/confirm_delete.html"
     success_verb = "deleted"
 

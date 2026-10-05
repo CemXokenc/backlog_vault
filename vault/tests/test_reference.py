@@ -2,13 +2,13 @@ from django.test import TestCase
 from django.urls import reverse
 
 from vault.models import Developer, Genre, Platform
-from vault.tests.helpers import create_catalog, create_gamer
+from vault.tests.helpers import create_catalog, create_moderator
 
 
 class ReferencePagesTests(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.gamer = create_gamer()
+        cls.gamer = create_moderator("mod")
         cls.catalog = create_catalog()
 
     def setUp(self):

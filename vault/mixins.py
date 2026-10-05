@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.generic.base import ContextMixin
@@ -90,3 +91,20 @@ class ReferenceMixin(ContextMixin):
     def get_success_message(self, cleaned_data):
         name = self.model._meta.verbose_name.title()
         return f"{name} was successfully {self.success_verb}!"
+
+
+class ModelPermissionMixin(PermissionRequiredMixin):
+    """Requires the model permission that matches `permission_action`.
+
+    For example `permission_action = "add"` on a Game view requires
+    `vault.add_game`. Guests are sent to the login page, signed-in users
+    without the permission get a 403 page.
+    """
+
+    permission_action = "view"
+
+    def get_permission_required(self):
+        opts = self.model._meta
+        return (
+            f"{opts.app_label}.{self.permission_action}_{opts.model_name}",
+        )

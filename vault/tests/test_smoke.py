@@ -8,15 +8,16 @@ from vault.tests.helpers import (
     create_collection,
     create_entry,
     create_gamer,
+    create_moderator,
 )
 
 
 class SmokeTests(TestCase):
-    """Every page must open for a logged-in user and redirect guests."""
+    """Every page must open for a moderator and redirect guests."""
 
     @classmethod
     def setUpTestData(cls):
-        cls.gamer = create_gamer()
+        cls.gamer = create_moderator("gamer")
         cls.catalog = create_catalog()
         cls.game = cls.catalog.game
         cls.entry = create_entry(cls.gamer, cls.game, status="playing")
@@ -56,7 +57,7 @@ class SmokeTests(TestCase):
             ("vault:gamer-update", [self.gamer.pk]),
         ]
 
-    def test_pages_open_for_logged_in_user(self):
+    def test_pages_open_for_a_moderator(self):
         self.client.force_login(self.gamer)
         for name, args in self.pages():
             with self.subTest(page=name):

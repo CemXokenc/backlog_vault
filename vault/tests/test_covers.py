@@ -11,7 +11,7 @@ from django.urls import reverse
 from PIL import Image
 
 from vault.models import Game
-from vault.tests.helpers import create_catalog, create_gamer
+from vault.tests.helpers import create_catalog, create_moderator
 from vault.validators import validate_image_size
 
 MEDIA_ROOT = tempfile.mkdtemp()
@@ -37,7 +37,7 @@ class CoverUploadTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.gamer = create_gamer()
+        cls.gamer = create_moderator("mod")
         cls.catalog = create_catalog()
 
     def setUp(self):
@@ -111,7 +111,7 @@ class CoverDisplayTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.gamer = create_gamer()
+        cls.gamer = create_moderator("mod")
         cls.catalog = create_catalog()
         cls.game = cls.catalog.game
 

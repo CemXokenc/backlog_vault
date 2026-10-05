@@ -1,5 +1,6 @@
 from types import SimpleNamespace
 
+from vault.roles import ensure_moderators_group
 from vault.models import (
     Collection,
     Developer,
@@ -19,6 +20,12 @@ def create_gamer(username="alex", **extra):
         password=PASSWORD,
         **extra,
     )
+
+
+def create_moderator(username="moderator", **extra):
+    gamer = create_gamer(username, is_staff=True, **extra)
+    gamer.groups.add(ensure_moderators_group())
+    return gamer
 
 
 def create_catalog():

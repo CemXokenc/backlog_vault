@@ -8,6 +8,7 @@ from vault.forms import (
     GameForm,
 )
 from vault.mixins import (
+    ModelPermissionMixin,
     SearchMixin,
 )
 from vault.models import (
@@ -83,10 +84,11 @@ class GameDetailView(
 
 
 class GameCreateView(
-    LoginRequiredMixin,
+    ModelPermissionMixin,
     SuccessMessageMixin,
     generic.CreateView,
 ):
+    permission_action = "add"
     template_name = "vault/games/form.html"
     model = Game
     form_class = GameForm
@@ -94,10 +96,11 @@ class GameCreateView(
 
 
 class GameUpdateView(
-    LoginRequiredMixin,
+    ModelPermissionMixin,
     SuccessMessageMixin,
     generic.UpdateView,
 ):
+    permission_action = "change"
     template_name = "vault/games/form.html"
     model = Game
     form_class = GameForm
@@ -105,10 +108,11 @@ class GameUpdateView(
 
 
 class GameDeleteView(
-    LoginRequiredMixin,
+    ModelPermissionMixin,
     SuccessMessageMixin,
     generic.DeleteView,
 ):
+    permission_action = "delete"
     template_name = "vault/games/confirm_delete.html"
     model = Game
     success_url = reverse_lazy("vault:game-list")
