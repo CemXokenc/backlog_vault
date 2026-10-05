@@ -5,6 +5,7 @@ from django.urls import reverse
 
 from vault.validators import (
     validate_release_year,
+    validate_image_size,
     validate_rating,
     MIN_RATING,
     MAX_RATING,
@@ -102,6 +103,11 @@ class Game(models.Model):
     description = models.TextField(
         blank=True,
     )
+    cover = models.ImageField(
+        upload_to="covers/",
+        blank=True,
+        validators=[validate_image_size],
+    )
     cover_url = models.URLField(
         blank=True,
     )
@@ -131,6 +137,13 @@ class Game(models.Model):
 
     def get_absolute_url(self):
         return reverse("vault:game-detail", args=[self.pk])
+
+    @property
+    def cover_source(self):
+        """Uploaded cover if there is one, otherwise the cover URL."""
+        if self.cover:
+            return self.cover.url
+        return self.cover_url
 
 
 class LibraryEntry(models.Model):
