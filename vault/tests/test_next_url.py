@@ -75,3 +75,13 @@ class NextUrlTests(TestCase):
         url = reverse("vault:library-create", args=[self.game.pk])
         response = self.client.post(f"{url}?next=/library/", self.form_data)
         self.assertRedirects(response, reverse("vault:library-list"))
+
+    def test_game_page_links_keep_the_return_url(self):
+        response = self.client.get(self.game_url)
+        self.assertContains(response, f"{self.update_url}?next=")
+        self.assertContains(response, f"{self.delete_url}?next=")
+
+    def test_delete_page_asks_for_confirmation(self):
+        response = self.client.get(f"{self.delete_url}?next={self.game_url}")
+        self.assertContains(response, "Yes, remove")
+        self.assertTrue(LibraryEntry.objects.filter(pk=self.entry.pk).exists())
