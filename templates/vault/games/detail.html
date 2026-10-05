@@ -70,13 +70,7 @@
         <div class="alert alert-secondary d-flex justify-content-between align-items-center py-2">
           <span>
             In your library:
-            <span class="badge
-              {% if my_entry.status == 'completed' %}text-bg-success
-              {% elif my_entry.status == 'playing' %}text-bg-primary
-              {% elif my_entry.status == 'dropped' %}text-bg-danger
-              {% else %}text-bg-secondary{% endif %}">
-              {{ my_entry.get_status_display }}
-            </span>
+            {% include "includes/status_badge.html" with status=my_entry.status label=my_entry.get_status_display %}
             {% if my_entry.rating %}
               &middot; <i class="bi bi-star-fill text-warning"></i> {{ my_entry.rating }}
             {% endif %}
@@ -174,13 +168,7 @@
             <tr>
               <td>{{ entry.gamer.nickname|default:entry.gamer.username }}</td>
               <td>
-                <span class="badge
-                  {% if entry.status == 'completed' %}text-bg-success
-                  {% elif entry.status == 'playing' %}text-bg-primary
-                  {% elif entry.status == 'dropped' %}text-bg-danger
-                  {% else %}text-bg-secondary{% endif %}">
-                  {{ entry.get_status_display }}
-                </span>
+                {% include "includes/status_badge.html" with status=entry.status label=entry.get_status_display %}
               </td>
               <td class="text-center">{{ entry.rating|default:"–" }}</td>
               <td class="text-center">{{ entry.hours_played }}</td>

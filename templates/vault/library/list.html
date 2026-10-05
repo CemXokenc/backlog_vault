@@ -41,13 +41,7 @@
                 <a href="{% url 'vault:game-detail' entry.game.pk %}">{{ entry.game.title }}</a>
               </td>
               <td>
-                <span class="badge
-                  {% if entry.status == 'completed' %}text-bg-success
-                  {% elif entry.status == 'playing' %}text-bg-primary
-                  {% elif entry.status == 'dropped' %}text-bg-danger
-                  {% else %}text-bg-secondary{% endif %}">
-                  {{ entry.get_status_display }}
-                </span>
+                {% include "includes/status_badge.html" with status=entry.status label=entry.get_status_display %}
               </td>
               <td class="text-center">{{ entry.rating|default:"–" }}</td>
               <td class="text-center">{{ entry.hours_played }}</td>
