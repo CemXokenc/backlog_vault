@@ -5,12 +5,26 @@ from vault.models import Gamer, Genre, Platform, Game, LibraryEntry, Collection
 
 
 class GamerCreationForm(UserCreationForm):
+    email = forms.EmailField(
+        required=True,
+        help_text="Used for the account activation link.",
+    )
+
     class Meta(UserCreationForm.Meta):
         model = Gamer
         fields = UserCreationForm.Meta.fields + (
+            "email",
             "nickname",
             "favorite_genre",
         )
+
+    def clean_email(self):
+        email = self.cleaned_data["email"]
+        if Gamer.objects.filter(email__iexact=email).exists():
+            raise forms.ValidationError(
+                "A gamer with this email already exists.",
+            )
+        return email
 
 
 class SearchForm(forms.Form):
