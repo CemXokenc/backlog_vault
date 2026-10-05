@@ -51,12 +51,17 @@ class GameForm(forms.ModelForm):
             "genres",
             "platforms",
             "description",
+            "cover",
             "cover_url",
         ]
         widgets = {
             "genres": forms.CheckboxSelectMultiple,
             "platforms": forms.CheckboxSelectMultiple,
             "description": forms.Textarea(attrs={"rows": 4}),
+        }
+        help_texts = {
+            "cover": "Upload an image (up to 2 MB).",
+            "cover_url": "Used when no image is uploaded.",
         }
 
 

@@ -1,0 +1,97 @@
+import shutil
+import tempfile
+from io import BytesIO
+from pathlib import Path
+from types import SimpleNamespace
+
+from django.core.exceptions import ValidationError
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import TestCase, override_settings
+from django.urls import reverse
+from PIL import Image
+
+from vault.models import Game
+from vault.tests.helpers import create_catalog, create_gamer
+from vault.validators import validate_image_size
+
+MEDIA_ROOT = tempfile.mkdtemp()
+
+
+def make_image(name="cover.png", size=(8, 8), color="purple"):
+    buffer = BytesIO()
+    Image.new("RGB", size, color).save(buffer, format="PNG")
+    return SimpleUploadedFile(name, buffer.getvalue(), "image/png")
+
+
+@override_settings(MEDIA_ROOT=MEDIA_ROOT)
+class CoverUploadTests(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        Path(MEDIA_ROOT).mkdir(parents=True, exist_ok=True)
+
+    @classmethod
+    def tearDownClass(cls):
+        shutil.rmtree(MEDIA_ROOT, ignore_errors=True)
+        super().tearDownClass()
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.gamer = create_gamer()
+        cls.catalog = create_catalog()
+
+    def setUp(self):
+        self.client.force_login(self.gamer)
+
+    def form_data(self, **extra):
+        data = {
+            "title": "New Game",
+            "release_year": 2021,
+            "genres": [self.catalog.genre.pk],
+            "platforms": [self.catalog.platform.pk],
+        }
+        data.update(extra)
+        return data
+
+    def test_form_is_multipart(self):
+        response = self.client.get(reverse("vault:game-create"))
+        self.assertContains(response, 'enctype="multipart/form-data"')
+
+    def test_upload_cover_when_creating_a_game(self):
+        response = self.client.post(
+            reverse("vault:game-create"),
+            self.form_data(cover=make_image()),
+        )
+        game = Game.objects.get(title="New Game")
+        self.assertRedirects(response, game.get_absolute_url())
+        self.assertTrue(game.cover.name.startswith("covers/"))
+        self.assertTrue(Path(game.cover.path).exists())
+
+    def test_non_image_file_is_rejected(self):
+        fake = SimpleUploadedFile("cover.png", b"not an image", "image/png")
+        response = self.client.post(
+            reverse("vault:game-create"),
+            self.form_data(cover=fake),
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(Game.objects.filter(title="New Game").exists())
+
+    def test_validator_rejects_files_over_the_limit(self):
+        too_big = SimpleNamespace(size=3 * 1024 * 1024)
+        with self.assertRaises(ValidationError):
+            validate_image_size(too_big)
+        validate_image_size(SimpleNamespace(size=1024))
+
+    def test_cover_source_prefers_upload_over_url(self):
+        game = Game.objects.create(
+            title="Both",
+            release_year=2020,
+            cover_url="https://example.com/c.jpg",
+        )
+        self.assertEqual(game.cover_source, "https://example.com/c.jpg")
+        game.cover = make_image()
+        game.save()
+        self.assertIn("covers/", game.cover_source)
+
+    def test_cover_source_is_empty_without_any_cover(self):
+        self.assertEqual(self.catalog.game.cover_source, "")
