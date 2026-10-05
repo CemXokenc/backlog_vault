@@ -1,6 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.db.models import Q, F
+from django.db.models import Avg, Count, F, Q
 from django.urls import reverse
 
 from vault.validators import (
@@ -83,6 +83,15 @@ class Developer(models.Model):
         return f"{self.name} ({self.country})"
 
 
+class GameQuerySet(models.QuerySet):
+    def with_stats(self):
+        """Annotate games with their average rating and players count."""
+        return self.annotate(
+            avg_rating=Avg("library_entries__rating"),
+            num_players=Count("library_entries"),
+        )
+
+
 class Game(models.Model):
     title = models.CharField(
         max_length=255,
@@ -111,6 +120,8 @@ class Game(models.Model):
         Platform,
         related_name="games",
     )
+
+    objects = GameQuerySet.as_manager()
 
     class Meta:
         ordering = ["-release_year", "title"]

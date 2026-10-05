@@ -210,10 +210,7 @@ class GameListView(
     queryset = (
         Game.objects.select_related("developer")
         .prefetch_related("genres")
-        .annotate(
-            avg_rating=Avg("library_entries__rating"),
-            num_players=Count("library_entries"),
-        )
+        .with_stats()
         .order_by("-release_year", "title")
     )
     form_class = GameFilterForm
@@ -243,10 +240,7 @@ class GameDetailView(
     queryset = (
         Game.objects.select_related("developer")
         .prefetch_related("genres", "platforms")
-        .annotate(
-            avg_rating=Avg("library_entries__rating"),
-            num_players=Count("library_entries"),
-        )
+        .with_stats()
     )
 
     def get_context_data(self, **kwargs):
@@ -460,10 +454,7 @@ class CollectionDetailView(LoginRequiredMixin, generic.DetailView):
         context["games"] = (
             self.object.games.select_related("developer")
             .prefetch_related("genres")
-            .annotate(
-                avg_rating=Avg("library_entries__rating"),
-                num_players=Count("library_entries"),
-            )
+            .with_stats()
             .order_by("-release_year", "title")
         )
         if is_owner:
