@@ -158,6 +158,9 @@ MAILERS = {
 
 AUTH_USER_MODEL = "vault.Gamer"
 
+# Inactive gamers see "This account is inactive." instead of a generic error.
+AUTHENTICATION_BACKENDS = ["vault.backends.AllowInactiveLoginBackend"]
+
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "login"
 

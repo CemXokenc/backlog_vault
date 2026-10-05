@@ -14,6 +14,11 @@ urlpatterns = [
     path("", home.index, name="index"),
     path("register/", accounts.RegisterView.as_view(), name="register"),
     path(
+        "register/done/",
+        accounts.ActivationSentView.as_view(),
+        name="activation-sent",
+    ),
+    path(
         "activate/<uidb64>/<token>/",
         accounts.activate,
         name="activate",

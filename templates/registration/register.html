@@ -9,7 +9,11 @@
     <div class="col-md-8 col-lg-5">
       <div class="card shadow-sm">
         <div class="card-body p-4">
-          <h1 class="h4 mb-4 text-center">Create your account</h1>
+          <h1 class="h4 mb-3 text-center">Create your account</h1>
+          <p class="small text-body-secondary">
+            New accounts have to be activated: with the link we generate for
+            you, or by a moderator in the admin panel.
+          </p>
           <form method="post" novalidate>
             {% csrf_token %}
             {{ form|crispy }}

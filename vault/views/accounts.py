@@ -4,12 +4,12 @@ from django.contrib.auth import login
 from django.contrib.auth.tokens import default_token_generator
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse_lazy
 from django.utils.encoding import force_str
 from django.utils.http import urlsafe_base64_decode
 from django.views import generic
 from django.views.decorators.http import require_POST
 
+from vault.emails import send_activation_email
 from vault.forms import GamerCreationForm
 from vault.models import Gamer
 from vault.roles import DEMO_USERS
@@ -18,13 +18,18 @@ from vault.roles import DEMO_USERS
 class RegisterView(generic.CreateView):
     form_class = GamerCreationForm
     template_name = "registration/register.html"
-    success_url = reverse_lazy("vault:index")
 
     def form_valid(self, form):
-        response = super().form_valid(form)
-        login(self.request, self.object)
+        gamer = form.save(commit=False)
+        gamer.is_active = False
+        gamer.save()
+        form.save_m2m()
+        send_activation_email(self.request, gamer)
+        return redirect("vault:activation-sent")
 
-        return response
+
+class ActivationSentView(generic.TemplateView):
+    template_name = "registration/activation_sent.html"
 
 
 @require_POST
