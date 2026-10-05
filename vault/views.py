@@ -7,7 +7,6 @@ from django.db.models import Count, Q, Avg, Sum
 from django.http import Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
-from django.utils.http import url_has_allowed_host_and_scheme
 from django.views import generic
 from django.views.decorators.http import require_POST
 
@@ -19,7 +18,7 @@ from vault.forms import (
     CollectionForm,
     GamerUpdateForm,
 )
-from vault.mixins import SearchMixin
+from vault.mixins import NextUrlMixin, SearchMixin, get_safe_next_url
 from vault.models import (
     LibraryEntry,
     Game,
@@ -349,6 +348,7 @@ class LibraryEntryListView(
 class LibraryEntryCreateView(
     LoginRequiredMixin,
     SuccessMessageMixin,
+    NextUrlMixin,
     generic.CreateView,
 ):
     model = LibraryEntry
@@ -378,12 +378,13 @@ class LibraryEntryCreateView(
         return kwargs
 
     def get_success_url(self):
-        return self.game.get_absolute_url()
+        return self.get_next_url() or self.game.get_absolute_url()
 
 
 class LibraryEntryUpdateView(
     LoginRequiredMixin,
     SuccessMessageMixin,
+    NextUrlMixin,
     generic.UpdateView,
 ):
     model = LibraryEntry
@@ -400,6 +401,7 @@ class LibraryEntryUpdateView(
 class LibraryEntryDeleteView(
     LoginRequiredMixin,
     SuccessMessageMixin,
+    NextUrlMixin,
     generic.DeleteView,
 ):
     model = LibraryEntry
@@ -502,13 +504,7 @@ class CollectionDeleteView(
 
 
 def redirect_back(request, fallback):
-    next_url = request.POST.get("next", "")
-    if url_has_allowed_host_and_scheme(
-        next_url,
-        allowed_hosts={request.get_host()},
-    ):
-        return redirect(next_url)
-    return redirect(fallback)
+    return redirect(get_safe_next_url(request) or fallback)
 
 
 @login_required

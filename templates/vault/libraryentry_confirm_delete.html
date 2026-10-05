@@ -15,8 +15,9 @@
           </p>
           <form method="post">
             {% csrf_token %}
+            {% if next_url %}<input type="hidden" name="next" value="{{ next_url }}">{% endif %}
             <button type="submit" class="btn btn-danger">Yes, remove</button>
-            <a class="btn btn-outline-secondary" href="{% url 'vault:library-list' %}">Cancel</a>
+            <a class="btn btn-outline-secondary" href="{% if next_url %}{{ next_url }}{% else %}{% url 'vault:library-list' %}{% endif %}">Cancel</a>
           </form>
         </div>
       </div>

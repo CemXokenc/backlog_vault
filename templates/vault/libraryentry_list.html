@@ -54,11 +54,11 @@
               <td>{{ entry.platform|default:"–" }}</td>
               <td class="text-end text-nowrap">
                 <a class="btn btn-sm btn-outline-secondary"
-                   href="{% url 'vault:library-update' entry.pk %}" title="Edit">
+                   href="{% url 'vault:library-update' entry.pk %}?next={{ request.get_full_path|urlencode }}" title="Edit">
                   <i class="bi bi-pencil"></i>
                 </a>
                 <a class="btn btn-sm btn-outline-danger"
-                   href="{% url 'vault:library-delete' entry.pk %}" title="Remove">
+                   href="{% url 'vault:library-delete' entry.pk %}?next={{ request.get_full_path|urlencode }}" title="Remove">
                   <i class="bi bi-trash"></i>
                 </a>
               </td>

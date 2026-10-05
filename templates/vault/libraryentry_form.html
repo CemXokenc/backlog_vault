@@ -15,9 +15,12 @@
           <p class="text-body-secondary mb-4">{{ form.instance.game.title }}</p>
           <form method="post" novalidate>
             {% csrf_token %}
+            {% if next_url %}<input type="hidden" name="next" value="{{ next_url }}">{% endif %}
             {{ form|crispy }}
             <button type="submit" class="btn btn-primary">Save</button>
-            {% if object %}
+            {% if next_url %}
+              <a class="btn btn-outline-secondary" href="{{ next_url }}">Cancel</a>
+            {% elif object %}
               <a class="btn btn-outline-secondary" href="{% url 'vault:library-list' %}">Cancel</a>
             {% else %}
               <a class="btn btn-outline-secondary" href="{% url 'vault:game-detail' form.instance.game.pk %}">Cancel</a>

@@ -82,7 +82,7 @@
             {% endif %}
           </span>
           <span class="text-nowrap">
-            <a class="btn btn-sm btn-outline-secondary" href="{% url 'vault:library-update' my_entry.pk %}" title="Edit status, rating, hours">
+            <a class="btn btn-sm btn-outline-secondary" href="{% url 'vault:library-update' my_entry.pk %}?next={{ request.get_full_path|urlencode }}" title="Edit status, rating, hours">
               <i class="bi bi-pencil"></i>
             </a>
           </span>
