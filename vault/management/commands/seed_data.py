@@ -3,6 +3,7 @@ from datetime import date
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
+from vault.roles import ensure_moderators_group
 from vault.models import (
     Collection,
     Developer,
@@ -149,6 +150,26 @@ GAMERS = [
         "nickname": "Taras",
         "bio": "I like hard games and FromSoftware.",
         "favorite_genre": "Action",
+    },
+    {
+        "username": "demo_admin",
+        "nickname": "Demo Admin",
+        "bio": "Superuser: can do everything, including the admin panel.",
+        "favorite_genre": "RPG",
+        "role": "admin",
+    },
+    {
+        "username": "demo_moderator",
+        "nickname": "Demo Moderator",
+        "bio": "Moderator: manages games, genres, platforms, developers.",
+        "favorite_genre": "Adventure",
+        "role": "moderator",
+    },
+    {
+        "username": "demo_user",
+        "nickname": "Demo Player",
+        "bio": "Regular player: library, ratings and collections.",
+        "favorite_genre": "Roguelike",
     },
 ]
 
@@ -410,11 +431,64 @@ COLLECTIONS = [
 ]
 
 
+ENTRIES += [
+    (
+        "demo_user",
+        "Hades",
+        Status.COMPLETED,
+        9,
+        40,
+        date(2026, 1, 5),
+        date(2026, 2, 1),
+        PC,
+        "A great one to demo.",
+    ),
+    (
+        "demo_user",
+        "Portal 2",
+        Status.COMPLETED,
+        10,
+        9,
+        date(2026, 3, 2),
+        date(2026, 3, 3),
+        PC,
+        "",
+    ),
+    (
+        "demo_user",
+        "Elden Ring",
+        Status.PLAYING,
+        None,
+        20,
+        date(2026, 8, 1),
+        None,
+        PC,
+        "",
+    ),
+    (
+        "demo_user",
+        "Metroid Dread",
+        Status.PLANNED,
+        None,
+        0,
+        None,
+        None,
+        None,
+        "",
+    ),
+]
+
+COLLECTIONS += [
+    ("demo_user", "My favourites", "Demo collection.", ["Hades", "Portal 2"]),
+]
+
+
 class Command(BaseCommand):
     help = "Fill the database with demo data."  # noqa: VNE003
 
     @transaction.atomic
     def handle(self, *args, **options):
+        ensure_moderators_group()
         genres = self.create_genres()
         platforms = self.create_platforms()
         developers = self.create_developers()
@@ -424,8 +498,8 @@ class Command(BaseCommand):
         self.create_collections(gamers, games)
         self.stdout.write(
             self.style.SUCCESS(
-                f"Done. Demo users: alex, maria, taras "
-                f"(password: {DEMO_PASSWORD})"
+                f"Done. Demo logins (password: {DEMO_PASSWORD}): "
+                "demo_admin, demo_moderator, demo_user, alex, maria, taras"
             )
         )
 
@@ -483,6 +557,7 @@ class Command(BaseCommand):
             if created:
                 gamer.set_password(DEMO_PASSWORD)
                 gamer.save()
+            Command.apply_role(gamer, spec.get("role"))
             gamers[gamer.username] = gamer
         return gamers
 
@@ -522,3 +597,14 @@ class Command(BaseCommand):
                 defaults={"description": description},
             )
             collection.games.set([games[name] for name in game_titles])
+
+    @staticmethod
+    def apply_role(gamer, role):
+        if role == "admin":
+            gamer.is_staff = True
+            gamer.is_superuser = True
+            gamer.save(update_fields=["is_staff", "is_superuser"])
+        elif role == "moderator":
+            gamer.is_staff = True
+            gamer.save(update_fields=["is_staff"])
+            gamer.groups.add(ensure_moderators_group())
