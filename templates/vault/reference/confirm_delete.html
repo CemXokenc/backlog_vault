@@ -1,22 +1,21 @@
 {% extends "base.html" %}
 
-{% block title %}Delete genre{% endblock %}
+{% block title %}Delete {{ ref.title|lower }}{% endblock %}
 
 {% block content %}
   <div class="row justify-content-center">
     <div class="col-md-8 col-lg-5">
       <div class="card shadow-sm border-danger">
         <div class="card-body p-4">
-          <h1 class="h4 mb-3">Delete genre</h1>
-          <p>Are you sure you want to delete <strong>{{ object.name }}</strong>?</p>
+          <h1 class="h4 mb-3">Delete {{ ref.title|lower }}</h1>
+          <p>Are you sure you want to delete <strong>{{ object }}</strong>?</p>
           <p class="text-body-secondary small">
-            {{ object.games.count }} game(s) will stay in the catalog but lose this genre.
-            Gamers who chose it as their favorite will have that field cleared.
+            {{ object.games.count }} game(s) {{ ref.delete_hint }}
           </p>
           <form method="post">
             {% csrf_token %}
             <button type="submit" class="btn btn-danger">Yes, delete</button>
-            <a class="btn btn-outline-secondary" href="{% url 'vault:genre-list' %}">Cancel</a>
+            <a class="btn btn-outline-secondary" href="{{ ref.list_url }}">Cancel</a>
           </form>
         </div>
       </div>

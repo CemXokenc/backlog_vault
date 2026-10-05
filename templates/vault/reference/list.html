@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 
-{% block title %}Developers{% endblock %}
+{% block title %}{{ ref.title_plural }}{% endblock %}
 
 {% block content %}
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-0">Developers</h1>
-    <a class="btn btn-primary" href="{% url 'vault:developer-create' %}">
-      <i class="bi bi-plus-lg"></i> Add developer
+    <h1 class="h3 mb-0">{{ ref.title_plural }}</h1>
+    <a class="btn btn-primary" href="{{ ref.create_url }}">
+      <i class="bi bi-plus-lg"></i> Add {{ ref.title|lower }}
     </a>
   </div>
 
@@ -17,30 +17,30 @@
     </div>
   </form>
 
-  {% if developer_list %}
+  {% if object_list %}
     <div class="table-responsive">
       <table class="table table-hover align-middle">
         <thead>
           <tr>
             <th>Name</th>
-            <th class="text-center">Country</th>
+            {% if ref.show_country %}<th class="text-center">Country</th>{% endif %}
             <th class="text-center">Games</th>
             <th class="text-end">Actions</th>
           </tr>
         </thead>
         <tbody>
-          {% for developer in developer_list %}
+          {% for item in object_list %}
             <tr>
-              <td>{{ developer.name }}</td>
-              <td class="text-center">{{ developer.country }}</td>
-              <td class="text-center">{{ developer.num_games }}</td>
+              <td>{{ item.name }}</td>
+              {% if ref.show_country %}<td class="text-center">{{ item.country }}</td>{% endif %}
+              <td class="text-center">{{ item.num_games }}</td>
               <td class="text-end">
                 <a class="btn btn-sm btn-outline-secondary"
-                   href="{% url 'vault:developer-update' developer.pk %}" title="Edit">
+                   href="{% url ref.update_name item.pk %}" title="Edit">
                   <i class="bi bi-pencil"></i>
                 </a>
                 <a class="btn btn-sm btn-outline-danger"
-                   href="{% url 'vault:developer-delete' developer.pk %}" title="Delete">
+                   href="{% url ref.delete_name item.pk %}" title="Delete">
                   <i class="bi bi-trash"></i>
                 </a>
               </td>
@@ -50,7 +50,7 @@
       </table>
     </div>
   {% else %}
-    <p class="text-body-secondary">No developers found.</p>
+    <p class="text-body-secondary">No {{ ref.title_plural|lower }} found.</p>
   {% endif %}
 
   {% include "includes/pagination.html" %}

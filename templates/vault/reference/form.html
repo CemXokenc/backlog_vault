@@ -1,8 +1,7 @@
 {% extends "base.html" %}
-{% load crispy_forms_filters %}
 {% load crispy_forms_tags %}
 
-{% block title %}{% if object %}Edit genre{% else %}Add genre{% endif %}{% endblock %}
+{% block title %}{% if object %}Edit{% else %}Add{% endif %} {{ ref.title|lower }}{% endblock %}
 
 {% block content %}
   <div class="row justify-content-center">
@@ -10,13 +9,13 @@
       <div class="card shadow-sm">
         <div class="card-body p-4">
           <h1 class="h4 mb-4">
-            {% if object %}Edit genre{% else %}Add genre{% endif %}
+            {% if object %}Edit{% else %}Add{% endif %} {{ ref.title|lower }}
           </h1>
           <form method="post" novalidate>
             {% csrf_token %}
             {{ form|crispy }}
             <button type="submit" class="btn btn-primary">Save</button>
-            <a class="btn btn-outline-secondary" href="{% url 'vault:genre-list' %}">Cancel</a>
+            <a class="btn btn-outline-secondary" href="{{ ref.list_url }}">Cancel</a>
           </form>
         </div>
       </div>

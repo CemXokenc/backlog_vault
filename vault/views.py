@@ -18,7 +18,12 @@ from vault.forms import (
     CollectionForm,
     GamerUpdateForm,
 )
-from vault.mixins import NextUrlMixin, SearchMixin, get_safe_next_url
+from vault.mixins import (
+    NextUrlMixin,
+    ReferenceMixin,
+    SearchMixin,
+    get_safe_next_url,
+)
 from vault.models import (
     LibraryEntry,
     Game,
@@ -67,137 +72,133 @@ class RegisterView(generic.CreateView):
         return response
 
 
-class GenreListView(
+class ReferenceListView(
     LoginRequiredMixin,
+    ReferenceMixin,
     SearchMixin,
     generic.ListView,
 ):
+    template_name = "vault/reference/list.html"
+    paginate_by = 10
+
+
+class ReferenceCreateView(
+    LoginRequiredMixin,
+    ReferenceMixin,
+    SuccessMessageMixin,
+    generic.CreateView,
+):
+    template_name = "vault/reference/form.html"
+    success_verb = "created"
+
+
+class ReferenceUpdateView(
+    LoginRequiredMixin,
+    ReferenceMixin,
+    SuccessMessageMixin,
+    generic.UpdateView,
+):
+    template_name = "vault/reference/form.html"
+    success_verb = "updated"
+
+
+class ReferenceDeleteView(
+    LoginRequiredMixin,
+    ReferenceMixin,
+    SuccessMessageMixin,
+    generic.DeleteView,
+):
+    template_name = "vault/reference/confirm_delete.html"
+    success_verb = "deleted"
+
+
+class GenreListView(ReferenceListView):
+    model = Genre
     queryset = Genre.objects.annotate(num_games=Count("games")).order_by(
         "name",
     )
-    paginate_by = 10
+    url_prefix = "genre"
     search_placeholder = "Search genres"
 
 
-class GenreCreateView(
-    LoginRequiredMixin,
-    SuccessMessageMixin,
-    generic.CreateView,
-):
+class GenreCreateView(ReferenceCreateView):
     model = Genre
     fields = ["name"]
-    success_url = reverse_lazy("vault:genre-list")
-    success_message = "Genre was successfully created!"
+    url_prefix = "genre"
 
 
-class GenreUpdateView(
-    LoginRequiredMixin,
-    SuccessMessageMixin,
-    generic.UpdateView,
-):
+class GenreUpdateView(ReferenceUpdateView):
     model = Genre
     fields = ["name"]
-    success_url = reverse_lazy("vault:genre-list")
-    success_message = "Genre was successfully updated!"
+    url_prefix = "genre"
 
 
-class GenreDeleteView(
-    LoginRequiredMixin,
-    SuccessMessageMixin,
-    generic.DeleteView,
-):
+class GenreDeleteView(ReferenceDeleteView):
     model = Genre
-    success_url = reverse_lazy("vault:genre-list")
-    success_message = "Genre was successfully deleted!"
+    url_prefix = "genre"
+    delete_hint = (
+        "will stay in the catalog but lose this genre. "
+        "Gamers who chose it as their favorite will have that field cleared."
+    )
 
 
-class PlatformListView(
-    LoginRequiredMixin,
-    SearchMixin,
-    generic.ListView,
-):
+class PlatformListView(ReferenceListView):
+    model = Platform
     queryset = Platform.objects.annotate(num_games=Count("games")).order_by(
         "name",
     )
-    paginate_by = 10
+    url_prefix = "platform"
     search_placeholder = "Search platforms"
 
 
-class PlatformCreateView(
-    LoginRequiredMixin,
-    SuccessMessageMixin,
-    generic.CreateView,
-):
+class PlatformCreateView(ReferenceCreateView):
     model = Platform
     fields = ["name"]
-    success_url = reverse_lazy("vault:platform-list")
-    success_message = "Platform was successfully created!"
+    url_prefix = "platform"
 
 
-class PlatformUpdateView(
-    LoginRequiredMixin,
-    SuccessMessageMixin,
-    generic.UpdateView,
-):
+class PlatformUpdateView(ReferenceUpdateView):
     model = Platform
     fields = ["name"]
-    success_url = reverse_lazy("vault:platform-list")
-    success_message = "Platform was successfully updated!"
+    url_prefix = "platform"
 
 
-class PlatformDeleteView(
-    LoginRequiredMixin,
-    SuccessMessageMixin,
-    generic.DeleteView,
-):
+class PlatformDeleteView(ReferenceDeleteView):
     model = Platform
-    success_url = reverse_lazy("vault:platform-list")
-    success_message = "Platform was successfully deleted!"
+    url_prefix = "platform"
+    delete_hint = (
+        "will stay in the catalog but lose this platform. "
+        "Library entries that used it will simply have no platform."
+    )
 
 
-class DeveloperListView(
-    LoginRequiredMixin,
-    SearchMixin,
-    generic.ListView,
-):
+class DeveloperListView(ReferenceListView):
+    model = Developer
     queryset = Developer.objects.annotate(num_games=Count("games")).order_by(
         "name",
         "country",
     )
-    paginate_by = 10
+    url_prefix = "developer"
+    show_country = True
     search_placeholder = "Search developers"
 
 
-class DeveloperCreateView(
-    LoginRequiredMixin,
-    SuccessMessageMixin,
-    generic.CreateView,
-):
+class DeveloperCreateView(ReferenceCreateView):
     model = Developer
     fields = ["name", "country"]
-    success_url = reverse_lazy("vault:developer-list")
-    success_message = "Developer was successfully created!"
+    url_prefix = "developer"
 
 
-class DeveloperUpdateView(
-    LoginRequiredMixin,
-    SuccessMessageMixin,
-    generic.UpdateView,
-):
+class DeveloperUpdateView(ReferenceUpdateView):
     model = Developer
     fields = ["name", "country"]
-    success_url = reverse_lazy("vault:developer-list")
-    success_message = "Developer was successfully updated!"
+    url_prefix = "developer"
 
 
-class DeveloperDeleteView(
-    LoginRequiredMixin,
-    SuccessMessageMixin,
-    generic.DeleteView,
-):
+class DeveloperDeleteView(ReferenceDeleteView):
     model = Developer
-    success_url = reverse_lazy("vault:developer-list")
-    success_message = "Developer was successfully deleted!"
+    url_prefix = "developer"
+    delete_hint = "will stay in the catalog without a developer."
 
 
 class GameListView(
