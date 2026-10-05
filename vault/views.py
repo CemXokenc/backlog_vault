@@ -52,7 +52,7 @@ def index(request):
         "my_library": my_library,
     }
 
-    return render(request, "vault/index.html", context=context)
+    return render(request, "vault/home.html", context=context)
 
 
 class RegisterView(generic.CreateView):
@@ -205,6 +205,7 @@ class GameListView(
     SearchMixin,
     generic.ListView,
 ):
+    template_name = "vault/games/list.html"
     queryset = (
         Game.objects.select_related("developer")
         .prefetch_related("genres")
@@ -237,6 +238,7 @@ class GameDetailView(
     LoginRequiredMixin,
     generic.DetailView,
 ):
+    template_name = "vault/games/detail.html"
     queryset = (
         Game.objects.select_related("developer")
         .prefetch_related("genres", "platforms")
@@ -274,6 +276,7 @@ class GameCreateView(
     SuccessMessageMixin,
     generic.CreateView,
 ):
+    template_name = "vault/games/form.html"
     model = Game
     form_class = GameForm
     success_message = "Game was successfully created!"
@@ -284,6 +287,7 @@ class GameUpdateView(
     SuccessMessageMixin,
     generic.UpdateView,
 ):
+    template_name = "vault/games/form.html"
     model = Game
     form_class = GameForm
     success_message = "Game was successfully updated!"
@@ -294,6 +298,7 @@ class GameDeleteView(
     SuccessMessageMixin,
     generic.DeleteView,
 ):
+    template_name = "vault/games/confirm_delete.html"
     model = Game
     success_url = reverse_lazy("vault:game-list")
     success_message = "Game was successfully deleted!"
@@ -303,6 +308,7 @@ class LibraryEntryListView(
     LoginRequiredMixin,
     generic.ListView,
 ):
+    template_name = "vault/library/list.html"
     context_object_name = "entries"
     paginate_by = 10
 
@@ -351,6 +357,7 @@ class LibraryEntryCreateView(
     NextUrlMixin,
     generic.CreateView,
 ):
+    template_name = "vault/library/form.html"
     model = LibraryEntry
     form_class = LibraryEntryForm
     success_message = "Game was added to your library!"
@@ -387,6 +394,7 @@ class LibraryEntryUpdateView(
     NextUrlMixin,
     generic.UpdateView,
 ):
+    template_name = "vault/library/form.html"
     model = LibraryEntry
     form_class = LibraryEntryForm
     success_url = reverse_lazy("vault:library-list")
@@ -404,6 +412,7 @@ class LibraryEntryDeleteView(
     NextUrlMixin,
     generic.DeleteView,
 ):
+    template_name = "vault/library/confirm_delete.html"
     model = LibraryEntry
     success_url = reverse_lazy("vault:library-list")
     success_message = "Game was removed from your library."
@@ -415,6 +424,7 @@ class LibraryEntryDeleteView(
 
 
 class CollectionListView(LoginRequiredMixin, SearchMixin, generic.ListView):
+    template_name = "vault/collections/list.html"
     queryset = (
         Collection.objects.select_related("owner")
         .annotate(num_games=Count("games"))
@@ -439,6 +449,7 @@ class CollectionListView(LoginRequiredMixin, SearchMixin, generic.ListView):
 
 
 class CollectionDetailView(LoginRequiredMixin, generic.DetailView):
+    template_name = "vault/collections/detail.html"
     queryset = Collection.objects.select_related("owner")
 
     def get_context_data(self, **kwargs):
@@ -467,6 +478,7 @@ class CollectionCreateView(
     SuccessMessageMixin,
     generic.CreateView,
 ):
+    template_name = "vault/collections/form.html"
     model = Collection
     form_class = CollectionForm
     success_message = "Collection was created!"
@@ -482,6 +494,7 @@ class CollectionUpdateView(
     SuccessMessageMixin,
     generic.UpdateView,
 ):
+    template_name = "vault/collections/form.html"
     model = Collection
     form_class = CollectionForm
     success_message = "Collection was updated!"
@@ -495,6 +508,7 @@ class CollectionDeleteView(
     SuccessMessageMixin,
     generic.DeleteView,
 ):
+    template_name = "vault/collections/confirm_delete.html"
     model = Collection
     success_url = reverse_lazy("vault:collection-list")
     success_message = "Collection was deleted."
@@ -544,6 +558,7 @@ def collection_remove_game(request, pk, game_pk):
 
 
 class GamerListView(LoginRequiredMixin, SearchMixin, generic.ListView):
+    template_name = "vault/gamers/list.html"
     queryset = (
         Gamer.objects.select_related("favorite_genre")
         .annotate(
@@ -563,6 +578,7 @@ class GamerListView(LoginRequiredMixin, SearchMixin, generic.ListView):
 
 
 class GamerDetailView(LoginRequiredMixin, generic.DetailView):
+    template_name = "vault/gamers/detail.html"
     queryset = Gamer.objects.select_related("favorite_genre")
 
     def get_context_data(self, **kwargs):
@@ -602,6 +618,7 @@ class GamerUpdateView(
     SuccessMessageMixin,
     generic.UpdateView,
 ):
+    template_name = "vault/gamers/form.html"
     model = Gamer
     form_class = GamerUpdateForm
     success_message = "Profile was updated!"
