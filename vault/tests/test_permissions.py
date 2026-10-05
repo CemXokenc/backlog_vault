@@ -142,3 +142,82 @@ class CatalogPermissionTests(TestCase):
             reverse("vault:library-update", args=[entry.pk]),
         )
         self.assertEqual(response.status_code, 404)
+
+
+class CatalogButtonsTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.catalog = create_catalog()
+        cls.regular = create_gamer("regular")
+        cls.moderator = create_gamer("moderator", is_staff=True)
+        cls.moderator.groups.add(ensure_moderators_group())
+
+    def pages(self):
+        return {
+            "vault:game-list": (reverse("vault:game-create"),),
+            "vault:genre-list": (
+                reverse("vault:genre-create"),
+                reverse("vault:genre-update", args=[self.catalog.genre.pk]),
+                reverse("vault:genre-delete", args=[self.catalog.genre.pk]),
+            ),
+            "vault:platform-list": (
+                reverse("vault:platform-create"),
+                reverse(
+                    "vault:platform-update", args=[self.catalog.platform.pk]
+                ),
+                reverse(
+                    "vault:platform-delete", args=[self.catalog.platform.pk]
+                ),
+            ),
+            "vault:developer-list": (
+                reverse("vault:developer-create"),
+                reverse(
+                    "vault:developer-update",
+                    args=[self.catalog.developer.pk],
+                ),
+                reverse(
+                    "vault:developer-delete",
+                    args=[self.catalog.developer.pk],
+                ),
+            ),
+        }
+
+    def test_regular_user_sees_no_catalog_buttons(self):
+        self.client.force_login(self.regular)
+        for name, links in self.pages().items():
+            response = self.client.get(reverse(name))
+            for link in links:
+                with self.subTest(page=name, link=link):
+                    self.assertNotContains(response, f'href="{link}"')
+
+    def test_moderator_sees_catalog_buttons(self):
+        self.client.force_login(self.moderator)
+        for name, links in self.pages().items():
+            response = self.client.get(reverse(name))
+            for link in links:
+                with self.subTest(page=name, link=link):
+                    self.assertContains(response, f'href="{link}"')
+
+    def test_game_detail_buttons_follow_permissions(self):
+        game = self.catalog.game
+        update = reverse("vault:game-update", args=[game.pk])
+        delete = reverse("vault:game-delete", args=[game.pk])
+        url = reverse("vault:game-detail", args=[game.pk])
+        self.client.force_login(self.regular)
+        response = self.client.get(url)
+        self.assertNotContains(response, f'href="{update}"')
+        self.assertNotContains(response, f'href="{delete}"')
+        self.client.force_login(self.moderator)
+        response = self.client.get(url)
+        self.assertContains(response, f'href="{update}"')
+        self.assertContains(response, f'href="{delete}"')
+
+    def test_regular_user_still_sees_library_actions(self):
+        game = self.catalog.game
+        url = reverse("vault:game-detail", args=[game.pk])
+        self.client.force_login(self.regular)
+        response = self.client.get(url)
+        self.assertContains(
+            response,
+            reverse("vault:library-create", args=[game.pk]),
+        )

@@ -33,12 +33,16 @@
           </p>
         </div>
         <div class="text-nowrap">
-          <a class="btn btn-sm btn-outline-secondary" href="{% url 'vault:game-update' game.pk %}" title="Edit">
-            <i class="bi bi-pencil"></i>
-          </a>
-          <a class="btn btn-sm btn-outline-danger" href="{% url 'vault:game-delete' game.pk %}" title="Delete">
-            <i class="bi bi-trash"></i>
-          </a>
+          {% if perms.vault.change_game %}
+            <a class="btn btn-sm btn-outline-secondary" href="{% url 'vault:game-update' game.pk %}" title="Edit game">
+              <i class="bi bi-pencil"></i>
+            </a>
+          {% endif %}
+          {% if perms.vault.delete_game %}
+            <a class="btn btn-sm btn-outline-danger" href="{% url 'vault:game-delete' game.pk %}" title="Delete game">
+              <i class="bi bi-trash"></i>
+            </a>
+          {% endif %}
         </div>
       </div>
 

@@ -83,6 +83,10 @@ class ReferenceMixin(ContextMixin):
             "delete_hint": self.delete_hint,
             "show_country": self.show_country,
         }
+        user = self.request.user
+        for action in ("add", "change", "delete"):
+            permission = f"{opts.app_label}.{action}_{opts.model_name}"
+            context["ref"][f"can_{action}"] = user.has_perm(permission)
         return context
 
     def get_success_url(self):
