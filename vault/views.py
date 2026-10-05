@@ -259,9 +259,13 @@ class GameDetailView(
         context["game_collections"] = self.object.collections.select_related(
             "owner",
         )
-        context["addable_collections"] = Collection.objects.filter(
-            owner=self.request.user,
-        ).exclude(games=self.object)
+        my_collections = Collection.objects.filter(owner=self.request.user)
+        context["addable_collections"] = my_collections.exclude(
+            games=self.object,
+        )
+        context["removable_collections"] = my_collections.filter(
+            games=self.object,
+        )
 
         return context
 
@@ -497,6 +501,16 @@ class CollectionDeleteView(
         return Collection.objects.filter(owner=self.request.user)
 
 
+def redirect_back(request, fallback):
+    next_url = request.POST.get("next", "")
+    if url_has_allowed_host_and_scheme(
+        next_url,
+        allowed_hosts={request.get_host()},
+    ):
+        return redirect(next_url)
+    return redirect(fallback)
+
+
 @login_required
 @require_POST
 def collection_add_game(request, pk):
@@ -516,13 +530,7 @@ def collection_add_game(request, pk):
             request,
             f"{game.title} was added to {collection.title}.",
         )
-    next_url = request.POST.get("next", "")
-    if url_has_allowed_host_and_scheme(
-        next_url,
-        allowed_hosts={request.get_host()},
-    ):
-        return redirect(next_url)
-    return redirect(collection)
+    return redirect_back(request, collection)
 
 
 @login_required
@@ -536,7 +544,7 @@ def collection_remove_game(request, pk, game_pk):
         f"{game.title} was removed from {collection.title}.",
     )
 
-    return redirect(collection)
+    return redirect_back(request, collection)
 
 
 class GamerListView(LoginRequiredMixin, SearchMixin, generic.ListView):
