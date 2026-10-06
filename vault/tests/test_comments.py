@@ -125,6 +125,25 @@ class CommentDisplayTests(CommentTestCase):
         response = self.client.get(self.collection.get_absolute_url())
         self.assertNotContains(response, "Visible to everyone")
 
+    def test_comment_is_marked_with_author_role_badges(self):
+        Comment.objects.create(
+            author=self.moderator,
+            game=self.game,
+            text="Moderator speaking",
+        )
+        self.client.force_login(self.author)
+        response = self.client.get(self.game.get_absolute_url())
+        self.assertContains(response, ">You</span>")
+        self.assertContains(response, ">Moderator</span>")
+
+    def test_guest_does_not_get_links_to_gamer_profiles(self):
+        profile = reverse("vault:gamer-detail", args=[self.author.pk])
+        response = self.client.get(self.game.get_absolute_url())
+        self.assertNotContains(response, profile)
+        self.client.force_login(self.other)
+        response = self.client.get(self.game.get_absolute_url())
+        self.assertContains(response, profile)
+
     def test_comment_text_is_escaped(self):
         Comment.objects.create(
             author=self.author,
