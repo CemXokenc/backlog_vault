@@ -1,7 +1,16 @@
 from django.core.management import call_command
 from django.test import TestCase
 
-from vault.models import Collection, Game, Gamer, LibraryEntry, Comment
+from vault.models import (
+    Collection,
+    Comment,
+    Developer,
+    Game,
+    Gamer,
+    Genre,
+    LibraryEntry,
+    Platform,
+)
 from vault.roles import MODERATORS_GROUP
 
 
@@ -51,3 +60,22 @@ class SeedDataTests(TestCase):
         comments = Comment.objects.count()
         call_command("seed_data", verbosity=0)
         self.assertEqual(Comment.objects.count(), comments)
+
+    def test_seed_fills_a_big_catalog(self):
+        self.assertGreaterEqual(Game.objects.count(), 60)
+        self.assertGreaterEqual(Developer.objects.count(), 35)
+        self.assertGreaterEqual(Genre.objects.count(), 15)
+        self.assertGreaterEqual(Platform.objects.count(), 8)
+
+    def test_every_reference_item_is_used_by_a_game(self):
+        self.assertFalse(Developer.objects.filter(games__isnull=True).exists())
+        self.assertFalse(Genre.objects.filter(games__isnull=True).exists())
+        self.assertFalse(Platform.objects.filter(games__isnull=True).exists())
+
+    def test_library_platform_belongs_to_the_game(self):
+        entries = LibraryEntry.objects.filter(platform__isnull=False)
+        for entry in entries.select_related("game", "platform"):
+            with self.subTest(entry=str(entry)):
+                self.assertTrue(
+                    entry.game.platforms.filter(pk=entry.platform.pk).exists(),
+                )

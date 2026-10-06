@@ -3,135 +3,29 @@ from datetime import date
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
-from vault.roles import ensure_moderators_group
+from vault.management.commands._catalog import (
+    DEVELOPERS,
+    GAMES,
+    GENRES,
+    PC,
+    PLATFORMS,
+    PS5,
+    SWITCH,
+    XBOX,
+)
 from vault.models import (
     Collection,
+    Comment,
     Developer,
     Game,
     Gamer,
     Genre,
     LibraryEntry,
     Platform,
-    Comment,
 )
+from vault.roles import ensure_moderators_group
 
 DEMO_PASSWORD = "testpass123"
-
-GENRES = ["RPG", "Action", "Adventure", "Puzzle", "Roguelike", "Platformer"]
-
-PLATFORMS = ["PC", "PlayStation 5", "Xbox Series X", "Nintendo Switch"]
-
-DEVELOPERS = [
-    ("CD Projekt Red", "Poland"),
-    ("FromSoftware", "Japan"),
-    ("Valve", "USA"),
-    ("Supergiant Games", "USA"),
-    ("Nintendo", "Japan"),
-]
-
-PC = "PC"
-PS5 = "PlayStation 5"
-XBOX = "Xbox Series X"
-SWITCH = "Nintendo Switch"
-
-GAMES = [
-    {
-        "title": "The Witcher 3: Wild Hunt",
-        "release_year": 2015,
-        "developer": "CD Projekt Red",
-        "genres": ["RPG", "Action"],
-        "platforms": [PC, PS5, XBOX, SWITCH],
-        "description": "Open-world RPG about a monster hunter.",
-    },
-    {
-        "title": "Cyberpunk 2077",
-        "release_year": 2020,
-        "developer": "CD Projekt Red",
-        "genres": ["RPG", "Action"],
-        "platforms": [PC, PS5, XBOX],
-        "description": "Sci-fi RPG set in Night City.",
-    },
-    {
-        "title": "Elden Ring",
-        "release_year": 2022,
-        "developer": "FromSoftware",
-        "genres": ["RPG", "Action", "Adventure"],
-        "platforms": [PC, PS5, XBOX],
-        "description": "Open-world action RPG in the Lands Between.",
-    },
-    {
-        "title": "Dark Souls III",
-        "release_year": 2016,
-        "developer": "FromSoftware",
-        "genres": ["RPG", "Action"],
-        "platforms": [PC, PS5, XBOX],
-        "description": "Punishing action RPG about linking the fire.",
-    },
-    {
-        "title": "Sekiro: Shadows Die Twice",
-        "release_year": 2019,
-        "developer": "FromSoftware",
-        "genres": ["Action", "Adventure"],
-        "platforms": [PC, PS5, XBOX],
-        "description": "Shinobi action game in feudal Japan.",
-    },
-    {
-        "title": "Portal 2",
-        "release_year": 2011,
-        "developer": "Valve",
-        "genres": ["Puzzle", "Adventure"],
-        "platforms": [PC, SWITCH],
-        "description": "Physics puzzles with portals and GLaDOS.",
-    },
-    {
-        "title": "Half-Life 2",
-        "release_year": 2004,
-        "developer": "Valve",
-        "genres": ["Action", "Adventure"],
-        "platforms": [PC],
-        "description": "Classic first-person shooter with a crowbar.",
-    },
-    {
-        "title": "Half-Life: Alyx",
-        "release_year": 2020,
-        "developer": "Valve",
-        "genres": ["Action", "Adventure"],
-        "platforms": [PC],
-        "description": "VR prequel in the Half-Life universe.",
-    },
-    {
-        "title": "Hades",
-        "release_year": 2020,
-        "developer": "Supergiant Games",
-        "genres": ["Roguelike", "Action"],
-        "platforms": [PC, SWITCH, PS5, XBOX],
-        "description": "Escape the Underworld, again and again.",
-    },
-    {
-        "title": "The Legend of Zelda: Breath of the Wild",
-        "release_year": 2017,
-        "developer": "Nintendo",
-        "genres": ["Adventure", "Action"],
-        "platforms": [SWITCH],
-        "description": "Explore Hyrule however you like.",
-    },
-    {
-        "title": "Super Mario Odyssey",
-        "release_year": 2017,
-        "developer": "Nintendo",
-        "genres": ["Platformer", "Adventure"],
-        "platforms": [SWITCH],
-        "description": "Mario travels the world with a living hat.",
-    },
-    {
-        "title": "Metroid Dread",
-        "release_year": 2021,
-        "developer": "Nintendo",
-        "genres": ["Platformer", "Action"],
-        "platforms": [SWITCH],
-        "description": "Samus is hunted by E.M.M.I. robots.",
-    },
-]
 
 GAMERS = [
     {
@@ -576,17 +470,24 @@ class Command(BaseCommand):
 
     @staticmethod
     def create_entries(gamers, games, platforms):
-        for (
-            username,
-            title,
-            status,
-            rating,
-            hours,
-            started_at,
-            finished_at,
-            platform_name,
-            note,
-        ) in ENTRIES:
+        for entry in ENTRIES:
+            if len(entry) == 7:
+                username, title, status, rating, hours, platform_name, note = (
+                    entry
+                )
+                started_at = finished_at = None
+            else:
+                (
+                    username,
+                    title,
+                    status,
+                    rating,
+                    hours,
+                    started_at,
+                    finished_at,
+                    platform_name,
+                    note,
+                ) = entry
             LibraryEntry.objects.update_or_create(
                 gamer=gamers[username],
                 game=games[title],
