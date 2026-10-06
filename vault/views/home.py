@@ -1,4 +1,3 @@
-from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Q
 from django.shortcuts import render
 
@@ -13,8 +12,11 @@ from vault.models import (
 )
 
 
-@login_required
 def index(request):
+    context = {"num_games": Game.objects.count()}
+    if not request.user.is_authenticated:
+        return render(request, "vault/home.html", context=context)
+
     num_visits = request.session.get("num_visits", 0) + 1
     request.session["num_visits"] = num_visits
 
@@ -24,15 +26,16 @@ def index(request):
         completed=Count("id", filter=Q(status=LibraryEntry.Status.COMPLETED)),
     )
 
-    context = {
-        "num_visits": num_visits,
-        "num_games": Game.objects.count(),
-        "num_genres": Genre.objects.count(),
-        "num_platforms": Platform.objects.count(),
-        "num_developers": Developer.objects.count(),
-        "num_collections": Collection.objects.count(),
-        "num_gamers": Gamer.objects.count(),
-        "my_library": my_library,
-    }
+    context.update(
+        {
+            "num_visits": num_visits,
+            "num_genres": Genre.objects.count(),
+            "num_platforms": Platform.objects.count(),
+            "num_developers": Developer.objects.count(),
+            "num_collections": Collection.objects.count(),
+            "num_gamers": Gamer.objects.count(),
+            "my_library": my_library,
+        },
+    )
 
     return render(request, "vault/home.html", context=context)

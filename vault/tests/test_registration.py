@@ -146,10 +146,10 @@ class InactiveLoginTests(TestCase):
         gamer = create_gamer("active_one")
         self.client.force_login(gamer)
         self.assertEqual(
-            self.client.get(reverse("vault:index")).status_code, 200
+            self.client.get(reverse("vault:library-list")).status_code, 200
         )
         gamer.is_active = False
         gamer.save()
-        response = self.client.get(reverse("vault:index"))
+        response = self.client.get(reverse("vault:library-list"))
         self.assertEqual(response.status_code, 302)
         self.assertIn("/accounts/login/", response["Location"])
