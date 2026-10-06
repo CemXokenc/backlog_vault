@@ -2,25 +2,39 @@
 
 > Steam for people with an empty wallet and a full backlog.
 
-Backlog Vault is a Django app where gamers track their game library: what
-they plan to play, what they are playing, what they finished and what they
-dropped, with ratings, hours and notes. Gamers also build shared collections
-of games, and a small moderation team keeps the catalog tidy.
+Backlog Vault is a Django web app where gamers keep track of their game
+backlog: what they plan to play, what they are playing right now, what they
+finished and what they dropped, with ratings, hours played and notes. Gamers
+also build shared collections of games and discuss games and collections in
+comments, while a small moderation team keeps the catalog tidy.
+
+Anyone can browse the game catalog; everything else is for registered gamers.
 
 ## Features
 
-- **Catalog** of games with genres, platforms and developers: search,
-  genre/platform filters, pagination, cover images (upload or URL).
-- **Personal library** (a through-model with status, rating 1-10, hours,
-  dates and notes, protected by database constraints).
-- **Collections**: curated lists of games, with add/remove straight from a
+- **Public game catalog**: search, genre / platform filters, pagination,
+  cover images (upload or URL). Guests can open any game page.
+- **Personal library**: a through-model with status, rating (1-10), hours,
+  dates and notes, protected by database constraints.
+- **Collections**: curated lists of games, with add / remove straight from a
   game page.
-- **Profiles** with statistics: games by status, hours, average rating,
-  most played genre, progress bar.
-- **Roles**: regular users, moderators and admins (see below).
-- **Registration with account activation** (link printed to the console).
-- **Dark/light theme** switch and a custom admin panel
+- **Comments** on games and collections for signed-in gamers, with author
+  badges, delete confirmation and a character counter. Authors can delete
+  their own comments, moderators can delete any.
+- **Profiles** with statistics: games by status, hours, average rating, most
+  played genre and a progress bar.
+- **Roles**: guests, regular players, moderators and admins (see below).
+- **Registration with account activation** (the link is printed to the
+  console).
+- **Dark / light theme** switch and a custom admin panel
   ([django-unfold](https://unfoldadmin.com/)).
+- **Rich demo data**: 64 games, 39 developers, 16 genres, 8 platforms.
+
+## Tech stack
+
+Python 3.14, Django 6.1, Bootstrap 5 + Bootstrap Icons,
+django-crispy-forms (Bootstrap 5 pack), Pillow, SQLite, flake8, GitHub
+Actions.
 
 ## Quick start
 
@@ -38,6 +52,9 @@ python manage.py runserver
 Open http://127.0.0.1:8000/. In development the header has a **Demo** menu
 that signs you in as the admin, a moderator or a regular user in one click.
 
+If you update an existing database, run `python manage.py migrate` and then
+`python manage.py setup_roles` so moderators get the latest permissions.
+
 ## Demo accounts
 
 All demo accounts use the password `testpass123`.
@@ -45,23 +62,28 @@ All demo accounts use the password `testpass123`.
 | Username                 | Role           | What they can do                            |
 |--------------------------|----------------|---------------------------------------------|
 | `demo_admin`             | Admin          | Everything, including the admin panel       |
-| `demo_moderator`         | Moderator      | Manage games, genres, platforms, developers |
-| `demo_user`              | Regular player | Library, ratings, collections, own profile  |
+| `demo_moderator`         | Moderator      | Manage games, reference data and comments   |
+| `demo_user`              | Regular player | Library, ratings, collections, comments     |
 | `alex`, `maria`, `taras` | Players        | Extra sample users with libraries           |
 
 ## Roles and permissions
 
 | Action                                          | Guest | Player |    Moderator     |  Admin  |
 |-------------------------------------------------|:-----:|:------:|:----------------:|:-------:|
-| Browse catalog and game pages                   |   +   |   +    |        +         |    +    |
-| Browse collections, profiles                    |   -   |   +    |        +         |    +    |
+| Browse the catalog and game pages (with comments) |  +  |   +    |        +         |    +    |
+| Browse collections, gamers, library             |   -   |   +    |        +         |    +    |
 | Manage own library, collections, profile        |   -   |   +    |        +         |    +    |
-| Create / edit / delete games and reference data |   -   |   -    |        +         |    +    |
-| Open the admin panel                            |   -   |   -    | + (catalog only) | + (all) |
-| Activate accounts, make moderators              |   -   |   -    |        -         |    +    |
 | Comment on games and collections                |   -   |   +    |        +         |    +    |
 | Delete own comments                             |   -   |   +    |        +         |    +    |
 | Delete any comment                              |   -   |   -    |        +         |    +    |
+| Create / edit / delete games and reference data |   -   |   -    |        +         |    +    |
+| Open the admin panel                            |   -   |   -    | + (catalog only) | + (all) |
+| Activate accounts, make moderators              |   -   |   -    |        -         |    +    |
+
+**Guests** see a welcome page that explains what is available, the game
+catalog and every game page with its comments. Buttons for the library,
+collections and commenting are replaced with a hint to log in or register.
+Any other page redirects a guest to the login form.
 
 Moderators are regular gamers who are *staff* and belong to the `Moderators`
 group (created by `python manage.py setup_roles`, also run by `seed_data`).
@@ -74,6 +96,25 @@ and prints the e-mail to the server console (no real e-mail is sent). Open
 that link to activate the account and sign in, or ask a moderator or admin to
 run **Activate selected gamers** in the admin panel. Switching to real e-mail
 only needs the usual `EMAIL_*` / `MAILERS` settings.
+
+## Demo data
+
+`python manage.py seed_data` is idempotent, so it is safe to run it again.
+
+| What                    | Count |
+|-------------------------|------:|
+| Games                   |    64 |
+| Developers              |    39 |
+| Genres                  |    16 |
+| Platforms               |     8 |
+| Gamers (with demo roles)|     6 |
+| Library entries         |    79 |
+| Collections             |    14 |
+| Comments                |    21 |
+
+The data lives in `vault/management/commands/`: `_catalog.py` (genres,
+platforms, developers, games) and `_activity.py` (extra library entries,
+collections and comments), the rest is in `seed_data.py`.
 
 ## Configuration
 
@@ -92,18 +133,25 @@ Uploaded covers are stored in `media/` (ignored by git).
 
 The editable source is `docs/backlog_vault_db.drawio`.
 
+Main models: `Gamer` (custom user), `Genre`, `Platform`, `Developer`, `Game`,
+`LibraryEntry` (gamer, game and personal progress), `Collection` and
+`Comment`. A comment belongs to **exactly one** game or collection, which is
+enforced by a database `CHECK` constraint.
+
 ## Project structure
 
 ```
 backlog_vault/        project settings and urls
 vault/
   models.py           Gamer, Genre, Platform, Developer, Game,
-                      LibraryEntry, Collection
-  views/              views split by section (games, library, ...)
+                      LibraryEntry, Collection, Comment
+  views/              views split by section (home, games, library,
+                      collections, comments, gamers, reference, ...)
   forms.py, mixins.py, roles.py, emails.py, backends.py, signals.py
-  management/commands seed_data, setup_roles
+  management/commands seed_data, setup_roles (+ seed data modules)
   tests/              test suite
 templates/            base, includes and one folder per section
+docs/                 database diagram
 ```
 
 ## Tests and code style
@@ -113,4 +161,7 @@ python manage.py test
 flake8
 ```
 
-GitHub Actions runs both on every pull request.
+The suite has more than 120 tests: models and constraints, permissions for
+every role, guest access, comments, registration and activation, seed data
+and a smoke test that opens every page.
+GitHub Actions runs both commands on every pull request.
