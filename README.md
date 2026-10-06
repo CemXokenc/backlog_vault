@@ -33,8 +33,8 @@ Anyone can browse the game catalog; everything else is for registered gamers.
 ## Tech stack
 
 Python 3.14, Django 6.1, Bootstrap 5 + Bootstrap Icons,
-django-crispy-forms (Bootstrap 5 pack), Pillow, SQLite, flake8, GitHub
-Actions.
+django-crispy-forms (Bootstrap 5 pack), Pillow, SQLite in development and
+PostgreSQL in production, python-dotenv, flake8, GitHub Actions.
 
 ## Quick start
 
@@ -49,7 +49,8 @@ python manage.py seed_data      # demo data + demo users
 python manage.py runserver
 ```
 
-Open http://127.0.0.1:8000/. In development the header has a **Demo** menu
+Open http://127.0.0.1:8000/. Development uses SQLite and needs no `.env`.
+The header has a **Demo** menu
 that signs you in as the admin, a moderator or a regular user in one click.
 
 If you update an existing database, run `python manage.py migrate` and then
@@ -118,13 +119,30 @@ collections and comments), the rest is in `seed_data.py`.
 
 ## Configuration
 
-| Environment variable   | Default          | Purpose                                   |
-|------------------------|------------------|-------------------------------------------|
-| `DJANGO_SECRET_KEY`    | insecure dev key | Secret key (set it in production)         |
-| `DJANGO_DEBUG`         | `1`              | `0` turns debug off                       |
-| `DJANGO_ALLOWED_HOSTS` | empty            | Comma separated host names                |
-| `DJANGO_DEMO_MODE`     | same as debug    | Demo login menu (never use in production) |
+Settings are split into a package, `backlog_vault/settings/`:
 
+| Module    | Used for    | Database   | Debug | Demo login menu               |
+|-----------|-------------|------------|-------|-------------------------------|
+| `base.py` | shared      | -          | -     | -                             |
+| `dev.py`  | development | SQLite     | on    | on                            |
+| `prod.py` | production  | PostgreSQL | off   | off (`DJANGO_DEMO_MODE=1` on) |
+
+`manage.py` uses `dev` by default, so no configuration is needed locally.
+`wsgi.py` and `asgi.py` use `prod`. To pick another module, set
+`DJANGO_SETTINGS_MODULE`.
+
+Variables are read from the environment or from a `.env` file in the project
+root (ignored by git); copy `.env.example` to get started.
+
+| Variable                | Used in | Default                | Purpose                         |
+|-------------------------|---------|------------------------|---------------------------------|
+| `DJANGO_SETTINGS_MODULE`| all     | `...settings.dev`      | Which settings module to load   |
+| `DJANGO_SECRET_KEY`     | prod    | **required**           | Secret key                      |
+| `DJANGO_ALLOWED_HOSTS`  | prod    | `127.0.0.1,localhost`  | Comma separated host names      |
+| `DJANGO_DEMO_MODE`      | prod    | `0`                    | `1` shows the demo login menu   |
+| `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_HOST`, `POSTGRES_DB_PORT` | prod | **required** | PostgreSQL connection |
+
+Never enable the demo login menu on a server with real accounts.
 Uploaded covers are stored in `media/` (ignored by git).
 
 ## Database
@@ -141,7 +159,7 @@ enforced by a database `CHECK` constraint.
 ## Project structure
 
 ```
-backlog_vault/        project settings and urls
+backlog_vault/        urls, wsgi/asgi and settings/ (base, dev, prod)
 vault/
   models.py           Gamer, Genre, Platform, Developer, Game,
                       LibraryEntry, Collection, Comment
