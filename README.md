@@ -2,6 +2,8 @@
 
 > Steam for people with an empty wallet and a full backlog.
 
+[Live Demo](https://backlog-vault.onrender.com/)
+
 Backlog Vault is a Django web app where gamers keep track of their game
 backlog: what they plan to play, what they are playing right now, what they
 finished and what they dropped, with ratings, hours played and notes. Gamers
@@ -60,26 +62,26 @@ If you update an existing database, run `python manage.py migrate` and then
 
 All demo accounts use the password `testpass123`.
 
-| Username                 | Role           | What they can do                            |
-|--------------------------|----------------|---------------------------------------------|
-| `demo_admin`             | Admin          | Everything, including the admin panel       |
-| `demo_moderator`         | Moderator      | Manage games, reference data and comments   |
-| `demo_user`              | Regular player | Library, ratings, collections, comments     |
-| `alex`, `maria`, `taras` | Players        | Extra sample users with libraries           |
+| Username                 | Role           | What they can do                          |
+|--------------------------|----------------|-------------------------------------------|
+| `demo_admin`             | Admin          | Everything, including the admin panel     |
+| `demo_moderator`         | Moderator      | Manage games, reference data and comments |
+| `demo_user`              | Regular player | Library, ratings, collections, comments   |
+| `alex`, `maria`, `taras` | Players        | Extra sample users with libraries         |
 
 ## Roles and permissions
 
-| Action                                          | Guest | Player |    Moderator     |  Admin  |
-|-------------------------------------------------|:-----:|:------:|:----------------:|:-------:|
-| Browse the catalog and game pages (with comments) |  +  |   +    |        +         |    +    |
-| Browse collections, gamers, library             |   -   |   +    |        +         |    +    |
-| Manage own library, collections, profile        |   -   |   +    |        +         |    +    |
-| Comment on games and collections                |   -   |   +    |        +         |    +    |
-| Delete own comments                             |   -   |   +    |        +         |    +    |
-| Delete any comment                              |   -   |   -    |        +         |    +    |
-| Create / edit / delete games and reference data |   -   |   -    |        +         |    +    |
-| Open the admin panel                            |   -   |   -    | + (catalog only) | + (all) |
-| Activate accounts, make moderators              |   -   |   -    |        -         |    +    |
+| Action                                            | Guest | Player |    Moderator     |  Admin  |
+|---------------------------------------------------|:-----:|:------:|:----------------:|:-------:|
+| Browse the catalog and game pages (with comments) |   +   |   +    |        +         |    +    |
+| Browse collections, gamers, library               |   -   |   +    |        +         |    +    |
+| Manage own library, collections, profile          |   -   |   +    |        +         |    +    |
+| Comment on games and collections                  |   -   |   +    |        +         |    +    |
+| Delete own comments                               |   -   |   +    |        +         |    +    |
+| Delete any comment                                |   -   |   -    |        +         |    +    |
+| Create / edit / delete games and reference data   |   -   |   -    |        +         |    +    |
+| Open the admin panel                              |   -   |   -    | + (catalog only) | + (all) |
+| Activate accounts, make moderators                |   -   |   -    |        -         |    +    |
 
 **Guests** see a welcome page that explains what is available, the game
 catalog and every game page with its comments. Buttons for the library,
@@ -102,16 +104,16 @@ only needs the usual `EMAIL_*` / `MAILERS` settings.
 
 `python manage.py seed_data` is idempotent, so it is safe to run it again.
 
-| What                    | Count |
-|-------------------------|------:|
-| Games                   |    64 |
-| Developers              |    39 |
-| Genres                  |    16 |
-| Platforms               |     8 |
-| Gamers (with demo roles)|     6 |
-| Library entries         |    79 |
-| Collections             |    14 |
-| Comments                |    21 |
+| What                     | Count |
+|--------------------------|------:|
+| Games                    |    64 |
+| Developers               |    39 |
+| Genres                   |    16 |
+| Platforms                |     8 |
+| Gamers (with demo roles) |     6 |
+| Library entries          |    79 |
+| Collections              |    14 |
+| Comments                 |    21 |
 
 The data lives in `vault/management/commands/`: `_catalog.py` (genres,
 platforms, developers, games) and `_activity.py` (extra library entries,
@@ -134,16 +136,16 @@ Settings are split into a package, `backlog_vault/settings/`:
 Variables are read from the environment or from a `.env` file in the project
 root (ignored by git); copy `.env.example` to get started.
 
-| Variable                       | Used in | Default               | Purpose                                         |
-|--------------------------------|---------|-----------------------|-------------------------------------------------|
-| `DJANGO_SETTINGS_MODULE`       | all     | `...settings.dev`     | Which settings module to load                   |
-| `DJANGO_SECRET_KEY`            | prod    | **required**          | Secret key                                      |
-| `DJANGO_ALLOWED_HOSTS`         | prod    | `127.0.0.1,localhost` | Comma separated host names                      |
-| `DJANGO_CSRF_TRUSTED_ORIGINS`  | prod    | empty                 | Site origins with scheme, e.g. `https://my.app` |
-| `DJANGO_DEMO_MODE`             | prod    | `0`                   | `1` shows the demo login menu                   |
-| `DJANGO_SECURE_COOKIES`        | prod    | `1`                   | `0` only to try prod settings locally over http |
-| `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_HOST`, `POSTGRES_DB_PORT` | prod | **required** | PostgreSQL connection |
-| `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`, `EMAIL_USE_TLS`, `DEFAULT_FROM_EMAIL` | prod | empty | SMTP for activation e-mails. Without `EMAIL_HOST` the links are printed to the server log |
+| Variable                                                                                                    | Used in | Default               | Purpose                                                                                   |
+|-------------------------------------------------------------------------------------------------------------|---------|-----------------------|-------------------------------------------------------------------------------------------|
+| `DJANGO_SETTINGS_MODULE`                                                                                    | all     | `...settings.dev`     | Which settings module to load                                                             |
+| `DJANGO_SECRET_KEY`                                                                                         | prod    | **required**          | Secret key                                                                                |
+| `DJANGO_ALLOWED_HOSTS`                                                                                      | prod    | `127.0.0.1,localhost` | Comma separated host names                                                                |
+| `DJANGO_CSRF_TRUSTED_ORIGINS`                                                                               | prod    | empty                 | Site origins with scheme, e.g. `https://my.app`                                           |
+| `DJANGO_DEMO_MODE`                                                                                          | prod    | `0`                   | `1` shows the demo login menu                                                             |
+| `DJANGO_SECURE_COOKIES`                                                                                     | prod    | `1`                   | `0` only to try prod settings locally over http                                           |
+| `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_HOST`, `POSTGRES_DB_PORT`                    | prod    | **required**          | PostgreSQL connection                                                                     |
+| `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`, `EMAIL_USE_TLS`, `DEFAULT_FROM_EMAIL` | prod    | empty                 | SMTP for activation e-mails. Without `EMAIL_HOST` the links are printed to the server log |
 
 To switch between environments change `DJANGO_SETTINGS_MODULE` in `.env`
 (`...settings.dev` or `...settings.prod`). On a hosting platform set the
