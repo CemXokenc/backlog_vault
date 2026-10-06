@@ -1,7 +1,7 @@
 import os
 
 from .base import *  # noqa: F403
-from .base import BASE_DIR, MIDDLEWARE
+from .base import BASE_DIR
 
 
 def env_list(name, default=""):
@@ -16,15 +16,7 @@ DEBUG = False
 SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]
 
 # e.g. DJANGO_ALLOWED_HOSTS=backlog-vault.onrender.com
-ALLOWED_HOSTS = [
-    "127.0.0.1",
-    "localhost",
-    "https://backlog-vault.onrender.com/",
-]
-
-RENDER_EXTERNAL_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
-if RENDER_EXTERNAL_HOSTNAME:
-    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost")
 
 # Origins allowed to submit forms over HTTPS (with the scheme), e.g.
 # DJANGO_CSRF_TRUSTED_ORIGINS=https://backlog-vault.onrender.com
@@ -41,21 +33,9 @@ SECURE_COOKIES = os.environ.get("DJANGO_SECURE_COOKIES", "1") == "1"
 SESSION_COOKIE_SECURE = SECURE_COOKIES
 CSRF_COOKIE_SECURE = SECURE_COOKIES
 
-# Static files are served by WhiteNoise after `manage.py collectstatic`.
-MIDDLEWARE = [
-    MIDDLEWARE[0],
-    "whitenoise.middleware.WhiteNoiseMiddleware",
-    *MIDDLEWARE[1:],
-]
+# Static files: `python manage.py collectstatic` (run in the build script)
+# collects them here and WhiteNoise serves them from this folder.
 STATIC_ROOT = BASE_DIR / "staticfiles"
-STORAGES = {
-    "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
-    },
-    "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
-    },
-}
 
 # Email: SMTP when EMAIL_HOST is set, otherwise activation links are printed
 # to the server log (the console backend).

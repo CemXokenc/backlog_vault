@@ -121,8 +121,19 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.1/howto/static-files/
 
 STATIC_URL = "static/"
-STATIC_ROOT = "staticfiles/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
+
+# WhiteNoise serves static files in dev and prod alike. In dev (DEBUG) it
+# reads them straight from the apps' static folders; in prod it serves the
+# result of `manage.py collectstatic` from STATIC_ROOT (see settings/prod.py).
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+    },
+}
 
 # User uploads (game covers)
 MEDIA_URL = "media/"
