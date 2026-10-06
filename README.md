@@ -42,22 +42,26 @@ that signs you in as the admin, a moderator or a regular user in one click.
 
 All demo accounts use the password `testpass123`.
 
-| Username         | Role           | What they can do                               |
-| ---------------- | -------------- | ---------------------------------------------- |
-| `demo_admin`     | Admin          | Everything, including the admin panel          |
-| `demo_moderator` | Moderator      | Manage games, genres, platforms, developers    |
-| `demo_user`      | Regular player | Library, ratings, collections, own profile     |
-| `alex`, `maria`, `taras` | Players | Extra sample users with libraries         |
+| Username                 | Role           | What they can do                            |
+|--------------------------|----------------|---------------------------------------------|
+| `demo_admin`             | Admin          | Everything, including the admin panel       |
+| `demo_moderator`         | Moderator      | Manage games, genres, platforms, developers |
+| `demo_user`              | Regular player | Library, ratings, collections, own profile  |
+| `alex`, `maria`, `taras` | Players        | Extra sample users with libraries           |
 
 ## Roles and permissions
 
-| Action                                         | Guest | Player | Moderator | Admin |
-| ---------------------------------------------- | :---: | :----: | :-------: | :---: |
-| Browse catalog, collections, profiles          |   -   |   +    |     +     |   +   |
-| Manage own library, collections, profile       |   -   |   +    |     +     |   +   |
-| Create / edit / delete games and reference data |  -   |   -    |     +     |   +   |
-| Open the admin panel                           |   -   |   -    | + (catalog only) | + (all) |
-| Activate accounts, make moderators             |   -   |   -    |     -     |   +   |
+| Action                                          | Guest | Player |    Moderator     |  Admin  |
+|-------------------------------------------------|:-----:|:------:|:----------------:|:-------:|
+| Browse catalog and game pages                   |   +   |   +    |        +         |    +    |
+| Browse collections, profiles                    |   -   |   +    |        +         |    +    |
+| Manage own library, collections, profile        |   -   |   +    |        +         |    +    |
+| Create / edit / delete games and reference data |   -   |   -    |        +         |    +    |
+| Open the admin panel                            |   -   |   -    | + (catalog only) | + (all) |
+| Activate accounts, make moderators              |   -   |   -    |        -         |    +    |
+| Comment on games and collections                |   -   |   +    |        +         |    +    |
+| Delete own comments                             |   -   |   +    |        +         |    +    |
+| Delete any comment                              |   -   |   -    |        +         |    +    |
 
 Moderators are regular gamers who are *staff* and belong to the `Moderators`
 group (created by `python manage.py setup_roles`, also run by `seed_data`).
@@ -73,12 +77,12 @@ only needs the usual `EMAIL_*` / `MAILERS` settings.
 
 ## Configuration
 
-| Environment variable     | Default                | Purpose                              |
-| ------------------------ | ---------------------- | ------------------------------------ |
-| `DJANGO_SECRET_KEY`      | insecure dev key       | Secret key (set it in production)    |
-| `DJANGO_DEBUG`           | `1`                    | `0` turns debug off                  |
-| `DJANGO_ALLOWED_HOSTS`   | empty                  | Comma separated host names           |
-| `DJANGO_DEMO_MODE`       | same as debug          | Demo login menu (never use in production) |
+| Environment variable   | Default          | Purpose                                   |
+|------------------------|------------------|-------------------------------------------|
+| `DJANGO_SECRET_KEY`    | insecure dev key | Secret key (set it in production)         |
+| `DJANGO_DEBUG`         | `1`              | `0` turns debug off                       |
+| `DJANGO_ALLOWED_HOSTS` | empty            | Comma separated host names                |
+| `DJANGO_DEMO_MODE`     | same as debug    | Demo login menu (never use in production) |
 
 Uploaded covers are stored in `media/` (ignored by git).
 
