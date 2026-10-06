@@ -17,6 +17,7 @@ from vault.models import (
     Genre,
     LibraryEntry,
     Platform,
+    Comment,
 )
 from vault.roles import MODERATORS_GROUP, ensure_moderators_group
 
@@ -136,3 +137,10 @@ class CollectionAdmin(ModelAdmin):
     list_display = ("title", "owner")
     search_fields = ("title", "owner__username")
     filter_horizontal = ("games",)
+
+
+@admin.register(Comment)
+class CommentAdmin(ModelAdmin):
+    list_display = ("author", "game", "collection", "created_at")
+    list_filter = ("created_at",)
+    search_fields = ("author__username", "text")
