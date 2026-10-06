@@ -21,26 +21,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 # See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# Set DJANGO_SECRET_KEY in the environment; the fallback is for local use only.
+# Set DJANGO_SECRET_KEY in the environment; the fallback is for local use only
+# (settings/prod.py requires the variable).
 SECRET_KEY = os.environ.get(
     "DJANGO_SECRET_KEY",
     "django-insecure-o2=*n0lj@tt9ql2g9)#z=hwuoadn9!2x@&bc)q554tl5)g1gk^",
 )
 
-# SECURITY WARNING: don't run with debug turned on in production!
-# Set DJANGO_DEBUG=0 to turn it off.
-DEBUG = os.environ.get("DJANGO_DEBUG", "1") != "False"
-
-# Header buttons that sign in as the demo admin, moderator or user.
-# Enabled together with DEBUG by default; never enable on a public server.
-DEMO_MODE = os.environ.get("DJANGO_DEMO_MODE", "1" if DEBUG else "0") == "1"
-
-# Comma separated list, e.g. DJANGO_ALLOWED_HOSTS=example.com,www.example.com
-ALLOWED_HOSTS = [
-    host
-    for host in os.environ.get("DJANGO_ALLOWED_HOSTS", "").split(",")
-    if host
-]
+# DEBUG, ALLOWED_HOSTS and DEMO_MODE are set in settings/dev.py and
+# settings/prod.py.
 
 # Application definition
 
