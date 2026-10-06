@@ -246,3 +246,54 @@ class Collection(models.Model):
 
     def get_absolute_url(self):
         return reverse("vault:collection-detail", args=[self.pk])
+
+
+class Comment(models.Model):
+    author = models.ForeignKey(
+        Gamer,
+        on_delete=models.CASCADE,
+        related_name="comments",
+    )
+    game = models.ForeignKey(
+        Game,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="comments",
+    )
+    collection = models.ForeignKey(
+        Collection,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="comments",
+    )
+    text = models.CharField(
+        max_length=1000,
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+    )
+
+    class Meta:
+        ordering = ["-created_at", "-pk"]
+        constraints = [
+            models.CheckConstraint(
+                condition=(
+                    Q(game__isnull=False, collection__isnull=True)
+                    | Q(game__isnull=True, collection__isnull=False)
+                ),
+                name="comment_has_exactly_one_target",
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.author} on {self.target}: {self.text[:30]}"
+
+    @property
+    def target(self):
+        """The game or collection this comment belongs to."""
+        return self.game or self.collection
+
+    def get_absolute_url(self):
+        return self.target.get_absolute_url()
