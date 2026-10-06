@@ -1,7 +1,7 @@
 from django.contrib.auth.models import Group, Permission
 
 MODERATORS_GROUP = "Moderators"
-MODERATED_MODELS = ("game", "genre", "platform", "developer")
+MODERATED_MODELS = ("game", "genre", "platform", "developer", "comment")
 PERMISSION_ACTIONS = ("add", "change", "delete", "view")
 
 DEMO_USERS = {

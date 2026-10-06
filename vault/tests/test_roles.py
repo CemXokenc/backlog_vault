@@ -15,8 +15,8 @@ class ModeratorsGroupTests(TestCase):
     def test_group_gets_catalog_permissions_only(self):
         ensure_moderators_group()
         codenames = self.codenames()
-        self.assertEqual(len(codenames), 16)
-        for model in ("game", "genre", "platform", "developer"):
+        self.assertEqual(len(codenames), 20)
+        for model in ("game", "genre", "platform", "developer", "comment"):
             for action in ("add", "change", "delete", "view"):
                 self.assertIn(f"{action}_{model}", codenames)
         for private in ("libraryentry", "collection", "gamer"):
@@ -30,9 +30,9 @@ class ModeratorsGroupTests(TestCase):
         self.assertEqual(
             Group.objects.filter(name=MODERATORS_GROUP).count(), 1
         )
-        self.assertEqual(len(self.codenames()), 16)
+        self.assertEqual(len(self.codenames()), 20)
 
     def test_management_command(self):
         out = StringIO()
         call_command("setup_roles", stdout=out)
-        self.assertIn("16 permissions", out.getvalue())
+        self.assertIn("20 permissions", out.getvalue())
