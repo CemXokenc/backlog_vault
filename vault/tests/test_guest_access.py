@@ -54,3 +54,25 @@ class GuestGamePagesTests(TestCase):
                 response = self.client.get(url)
                 self.assertEqual(response.status_code, 302)
                 self.assertIn("/accounts/login/", response["Location"])
+
+
+class GuestHomePageTests(TestCase):
+    def test_guest_home_explains_what_is_available(self):
+        response = self.client.get(reverse("vault:index"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "only the game catalog is available")
+        self.assertContains(response, reverse("login"))
+        self.assertContains(response, reverse("vault:register"))
+        self.assertNotContains(response, "Welcome back")
+
+    def test_guest_navbar_shows_only_the_catalog(self):
+        response = self.client.get(reverse("vault:index"))
+        self.assertContains(response, 'href="/games/"')
+        self.assertNotContains(response, 'href="/collections/"')
+        self.assertNotContains(response, 'href="/library/"')
+
+    def test_gamer_still_sees_the_dashboard(self):
+        self.client.force_login(create_gamer("alex"))
+        response = self.client.get(reverse("vault:index"))
+        self.assertContains(response, "Welcome back")
+        self.assertNotContains(response, "only the game catalog")
