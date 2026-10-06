@@ -19,7 +19,7 @@ SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]
 ALLOWED_HOSTS = [
     "127.0.0.1",
     "localhost",
-    "https://backlog-vault.onrender.com/"
+    "https://backlog-vault.onrender.com/",
 ]
 
 RENDER_EXTERNAL_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")

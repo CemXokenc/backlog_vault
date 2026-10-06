@@ -7,4 +7,6 @@ python manage.py collectstatic --no-input
 
 python manage.py migrate
 
+python manage.py setup_roles
+
 python manage.py seed_data
