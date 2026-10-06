@@ -73,9 +73,81 @@ DEVELOPERS = [
 ]
 
 
+STEAM_COVER_URL = (
+    "https://cdn.cloudflare.steamstatic.com/steam/apps/{}/header.jpg"
+)
+
+# Steam app ids of the games that are sold on Steam. Games from other
+# stores (Nintendo, Minecraft, Bloodborne) have no cover and show a
+# placeholder.
+# Check them with `python check_steam_covers.py` (needs internet).
+STEAM_APP_IDS = {
+    "The Witcher 3: Wild Hunt": 292030,
+    "Cyberpunk 2077": 1091500,
+    "Elden Ring": 1245620,
+    "Dark Souls III": 374320,
+    "Sekiro: Shadows Die Twice": 814380,
+    "Portal 2": 620,
+    "Half-Life 2": 220,
+    "Half-Life: Alyx": 546560,
+    "Hades": 1145360,
+    "Red Dead Redemption 2": 1174180,
+    "Grand Theft Auto V": 271590,
+    "The Last of Us Part II": 2531310,
+    "God of War": 1593500,
+    "God of War Ragnarök": 2322010,
+    "Marvel's Spider-Man": 1817070,
+    "Ghost of Tsushima": 2215430,
+    "Horizon Zero Dawn": 1151640,
+    "Death Stranding": 1190460,
+    "The Elder Scrolls V: Skyrim": 489830,
+    "Fallout 4": 377160,
+    "Baldur's Gate 3": 1086940,
+    "Divinity: Original Sin 2": 435150,
+    "Kingdom Come: Deliverance": 379430,
+    "Disco Elysium": 632470,
+    "Sid Meier's Civilization VI": 289070,
+    "XCOM 2": 268500,
+    "Cities: Skylines": 255710,
+    "Final Fantasy VII Remake": 1462040,
+    "Persona 5 Royal": 1687950,
+    "Resident Evil 4": 2050650,
+    "Monster Hunter: World": 582010,
+    "Devil May Cry 5": 601150,
+    "Street Fighter 6": 1364780,
+    "Armored Core VI: Fires of Rubicon": 1888160,
+    "Doom Eternal": 782330,
+    "Left 4 Dead 2": 550,
+    "Counter-Strike 2": 730,
+    "Alan Wake 2": 1282100,
+    "Control": 870780,
+    "S.T.A.L.K.E.R. 2: Heart of Chornobyl": 1643320,
+    "Metro Exodus": 412020,
+    "Terraria": 105600,
+    "Stardew Valley": 413150,
+    "Subnautica": 264710,
+    "Hollow Knight": 367520,
+    "Celeste": 504230,
+    "Dead Cells": 588650,
+    "Slay the Spire": 646570,
+    "Ori and the Blind Forest": 387290,
+    "Cuphead": 268910,
+    "Inside": 304430,
+    "Outer Wilds": 753640,
+    "It Takes Two": 1426210,
+    "Forza Horizon 5": 1551360,
+}
+
+
+def cover_url(title):
+    app_id = STEAM_APP_IDS.get(title)
+    return STEAM_COVER_URL.format(app_id) if app_id else ""
+
+
 def game(title, year, developer, genres, platforms, description):
     return {
         "title": title,
+        "cover_url": cover_url(title),
         "release_year": year,
         "developer": developer,
         "genres": genres,

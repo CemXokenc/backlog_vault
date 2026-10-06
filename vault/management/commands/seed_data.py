@@ -442,13 +442,16 @@ class Command(BaseCommand):
     def create_games(genres, platforms, developers):
         games = {}
         for spec in GAMES:
+            defaults = {
+                "description": spec["description"],
+                "developer": developers[spec["developer"]],
+            }
+            if spec["cover_url"]:
+                defaults["cover_url"] = spec["cover_url"]
             game, _ = Game.objects.update_or_create(
                 title=spec["title"],
                 release_year=spec["release_year"],
-                defaults={
-                    "description": spec["description"],
-                    "developer": developers[spec["developer"]],
-                },
+                defaults=defaults,
             )
             game.genres.set([genres[name] for name in spec["genres"]])
             game.platforms.set([platforms[name] for name in spec["platforms"]])

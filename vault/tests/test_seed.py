@@ -1,6 +1,7 @@
 from django.core.management import call_command
-from django.test import TestCase
+from django.test import SimpleTestCase, TestCase
 
+from vault.management.commands._catalog import GAMES, STEAM_APP_IDS
 from vault.models import (
     Collection,
     Comment,
@@ -79,3 +80,28 @@ class SeedDataTests(TestCase):
                 self.assertTrue(
                     entry.game.platforms.filter(pk=entry.platform.pk).exists(),
                 )
+
+    def test_steam_games_get_cover_urls(self):
+        with_cover = Game.objects.exclude(cover_url="")
+        self.assertGreaterEqual(with_cover.count(), 50)
+        for game in with_cover:
+            with self.subTest(game=game.title):
+                self.assertTrue(
+                    game.cover_url.startswith(
+                        "https://cdn.cloudflare.steamstatic.com/steam/apps/",
+                    ),
+                )
+
+    def test_games_without_cover_url_show_the_placeholder(self):
+        game = Game.objects.get(title="Minecraft")
+        self.assertEqual(game.cover_source, "")
+
+
+class CatalogDataTests(SimpleTestCase):
+    def test_steam_ids_belong_to_catalog_games(self):
+        titles = {spec["title"] for spec in GAMES}
+        self.assertFalse(set(STEAM_APP_IDS) - titles)
+
+    def test_steam_ids_are_unique(self):
+        ids = list(STEAM_APP_IDS.values())
+        self.assertEqual(len(ids), len(set(ids)))
