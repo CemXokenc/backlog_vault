@@ -2,6 +2,8 @@
 
 > Steam for people with an empty wallet and a full backlog.
 
+**Live demo:** https://backlog-vault.onrender.com/
+
 Backlog Vault is a Django web app where gamers keep track of their game
 backlog: what they plan to play, what they are playing right now, what they
 finished and what they dropped, with ratings, hours played and notes. Gamers
