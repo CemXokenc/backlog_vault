@@ -16,7 +16,11 @@ DEBUG = False
 SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]
 
 # e.g. DJANGO_ALLOWED_HOSTS=backlog-vault.onrender.com
-ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost")
+ALLOWED_HOSTS = []
+
+RENDER_EXTERNAL_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 # Origins allowed to submit forms over HTTPS (with the scheme), e.g.
 # DJANGO_CSRF_TRUSTED_ORIGINS=https://backlog-vault.onrender.com
