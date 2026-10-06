@@ -1,7 +1,7 @@
 from django.core.management import call_command
 from django.test import TestCase
 
-from vault.models import Collection, Game, Gamer, LibraryEntry
+from vault.models import Collection, Game, Gamer, LibraryEntry, Comment
 from vault.roles import MODERATORS_GROUP
 
 
@@ -42,3 +42,12 @@ class SeedDataTests(TestCase):
             LibraryEntry.objects.filter(gamer__username="demo_user").count(),
             4,
         )
+
+    def test_seed_creates_comments_without_duplicates(self):
+        self.assertTrue(Comment.objects.filter(game__isnull=False).exists())
+        self.assertTrue(
+            Comment.objects.filter(collection__isnull=False).exists(),
+        )
+        comments = Comment.objects.count()
+        call_command("seed_data", verbosity=0)
+        self.assertEqual(Comment.objects.count(), comments)

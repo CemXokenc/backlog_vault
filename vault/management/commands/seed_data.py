@@ -12,6 +12,7 @@ from vault.models import (
     Genre,
     LibraryEntry,
     Platform,
+    Comment,
 )
 
 DEMO_PASSWORD = "testpass123"
@@ -430,7 +431,6 @@ COLLECTIONS = [
     ),
 ]
 
-
 ENTRIES += [
     (
         "demo_user",
@@ -482,6 +482,17 @@ COLLECTIONS += [
     ("demo_user", "My favourites", "Demo collection.", ["Hades", "Portal 2"]),
 ]
 
+GAME_COMMENTS = [
+    ("maria", "Hades", "Best roguelike I have played, great story."),
+    ("alex", "Elden Ring", "Took me 120 hours and I want to start over."),
+    ("taras", "Portal 2", "The co-op campaign is as good as the main one."),
+]
+
+COLLECTION_COMMENTS = [
+    ("maria", "Best RPGs", "Nice list! I would add Disco Elysium."),
+    ("taras", "My favourites", "Great taste, Portal 2 is a classic."),
+]
+
 
 class Command(BaseCommand):
     help = "Fill the database with demo data."  # noqa: VNE003
@@ -496,11 +507,12 @@ class Command(BaseCommand):
         gamers = self.create_gamers(genres)
         self.create_entries(gamers, games, platforms)
         self.create_collections(gamers, games)
+        self.create_comments(gamers, games)
         self.stdout.write(
             self.style.SUCCESS(
                 f"Done. Demo logins (password: {DEMO_PASSWORD}): "
-                "demo_admin, demo_moderator, demo_user, alex, maria, taras"
-            )
+                "demo_admin, demo_moderator, demo_user, alex, maria, taras",
+            ),
         )
 
     @staticmethod
@@ -520,7 +532,8 @@ class Command(BaseCommand):
     def create_developers():
         return {
             name: Developer.objects.get_or_create(
-                name=name, defaults={"country": country}
+                name=name,
+                defaults={"country": country},
             )[0]
             for name, country in DEVELOPERS
         }
@@ -597,6 +610,21 @@ class Command(BaseCommand):
                 defaults={"description": description},
             )
             collection.games.set([games[name] for name in game_titles])
+
+    @staticmethod
+    def create_comments(gamers, games):
+        for author, title, text in GAME_COMMENTS:
+            Comment.objects.get_or_create(
+                author=gamers[author],
+                game=games[title],
+                text=text,
+            )
+        for author, title, text in COLLECTION_COMMENTS:
+            Comment.objects.get_or_create(
+                author=gamers[author],
+                collection=Collection.objects.get(title=title),
+                text=text,
+            )
 
     @staticmethod
     def apply_role(gamer, role):
