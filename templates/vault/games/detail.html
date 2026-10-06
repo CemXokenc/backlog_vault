@@ -10,10 +10,16 @@
     </ol>
   </nav>
 
-  <div class="row g-4 mb-4">
+  <section class="game-hero mb-4">
+    <div class="game-hero-bg-wrap" aria-hidden="true">
+      {% if game.cover_source %}
+        <img src="{{ game.cover_source }}" alt="" class="game-hero-bg">
+      {% endif %}
+    </div>
+  <div class="row g-4">
     <div class="col-md-4">
       {% if game.cover_source %}
-        <img src="{{ game.cover_source }}" alt="{{ game.title }}" class="img-fluid rounded w-100">
+        <img src="{{ game.cover_source }}" alt="{{ game.title }}" class="img-fluid rounded w-100 game-cover">
       {% else %}
         <div class="bg-body-secondary rounded d-flex align-items-center justify-content-center text-body-secondary fs-1"
              style="aspect-ratio: 16 / 10;">
@@ -169,6 +175,7 @@
       {% endif %}
     </div>
   </div>
+  </section>
 
   <h2 class="h5 mb-3">Who plays this</h2>
   {% if entries %}
