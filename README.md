@@ -34,7 +34,7 @@ Anyone can browse the game catalog; everything else is for registered gamers.
 
 Python 3.14, Django 6.1, Bootstrap 5 + Bootstrap Icons,
 django-crispy-forms (Bootstrap 5 pack), Pillow, SQLite in development and
-PostgreSQL in production, python-dotenv, flake8, GitHub Actions.
+PostgreSQL in production, WhiteNoise, python-dotenv, flake8, GitHub Actions.
 
 ## Quick start
 
@@ -134,16 +134,43 @@ Settings are split into a package, `backlog_vault/settings/`:
 Variables are read from the environment or from a `.env` file in the project
 root (ignored by git); copy `.env.example` to get started.
 
-| Variable                | Used in | Default                | Purpose                         |
-|-------------------------|---------|------------------------|---------------------------------|
-| `DJANGO_SETTINGS_MODULE`| all     | `...settings.dev`      | Which settings module to load   |
-| `DJANGO_SECRET_KEY`     | prod    | **required**           | Secret key                      |
-| `DJANGO_ALLOWED_HOSTS`  | prod    | `127.0.0.1,localhost`  | Comma separated host names      |
-| `DJANGO_DEMO_MODE`      | prod    | `0`                    | `1` shows the demo login menu   |
+| Variable                       | Used in | Default               | Purpose                                         |
+|--------------------------------|---------|-----------------------|-------------------------------------------------|
+| `DJANGO_SETTINGS_MODULE`       | all     | `...settings.dev`     | Which settings module to load                   |
+| `DJANGO_SECRET_KEY`            | prod    | **required**          | Secret key                                      |
+| `DJANGO_ALLOWED_HOSTS`         | prod    | `127.0.0.1,localhost` | Comma separated host names                      |
+| `DJANGO_CSRF_TRUSTED_ORIGINS`  | prod    | empty                 | Site origins with scheme, e.g. `https://my.app` |
+| `DJANGO_DEMO_MODE`             | prod    | `0`                   | `1` shows the demo login menu                   |
+| `DJANGO_SECURE_COOKIES`        | prod    | `1`                   | `0` only to try prod settings locally over http |
 | `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_HOST`, `POSTGRES_DB_PORT` | prod | **required** | PostgreSQL connection |
+| `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`, `EMAIL_USE_TLS`, `DEFAULT_FROM_EMAIL` | prod | empty | SMTP for activation e-mails. Without `EMAIL_HOST` the links are printed to the server log |
+
+To switch between environments change `DJANGO_SETTINGS_MODULE` in `.env`
+(`...settings.dev` or `...settings.prod`). On a hosting platform set the
+variables in its dashboard instead of uploading `.env`.
 
 Never enable the demo login menu on a server with real accounts.
 Uploaded covers are stored in `media/` (ignored by git).
+
+## Deployment
+
+Production runs with `backlog_vault.settings.prod`: PostgreSQL, `DEBUG` off,
+secure cookies and static files served by WhiteNoise.
+
+```bash
+pip install -r requirements.txt
+python manage.py collectstatic --noinput    # build command
+python manage.py migrate                    # before each release
+python manage.py seed_data                  # optional, demo data (first deploy)
+gunicorn backlog_vault.wsgi                 # example start command, depends on the host
+```
+
+Required variables: `DJANGO_SETTINGS_MODULE`, `DJANGO_SECRET_KEY`,
+`DJANGO_ALLOWED_HOSTS`, `DJANGO_CSRF_TRUSTED_ORIGINS` and the `POSTGRES_*`
+set. Without SMTP settings, new accounts have to be activated by an admin in
+the admin panel (**Activate selected gamers**) or from the link printed in the
+server log. Uploaded covers are stored on the local disk, which many hosts
+reset on every deploy; use cover URLs on such hosts.
 
 ## Database
 
