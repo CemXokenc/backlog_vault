@@ -64,4 +64,6 @@
   {% else %}
     <p class="text-body-secondary">This collection is empty.</p>
   {% endif %}
+  {% url 'vault:collection-comment-add' collection.pk as post_url %}
+  {% include "includes/comments.html" with post_url=post_url %}
 {% endblock %}

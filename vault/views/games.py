@@ -6,6 +6,7 @@ from django.views import generic
 from vault.forms import (
     GameFilterForm,
     GameForm,
+    CommentForm,
 )
 from vault.mixins import (
     ModelPermissionMixin,
@@ -79,6 +80,8 @@ class GameDetailView(
         context["removable_collections"] = my_collections.filter(
             games=self.object,
         )
+        context["comments"] = self.object.comments.select_related("author")
+        context["comment_form"] = CommentForm()
 
         return context
 

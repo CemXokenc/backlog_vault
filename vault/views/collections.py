@@ -11,6 +11,7 @@ from django.views.decorators.http import require_POST
 
 from vault.forms import (
     CollectionForm,
+    CommentForm,
 )
 from vault.mixins import (
     SearchMixin,
@@ -55,6 +56,8 @@ class CollectionDetailView(LoginRequiredMixin, generic.DetailView):
         context = super().get_context_data(**kwargs)
         is_owner = self.object.owner_id == self.request.user.pk
         context["is_owner"] = is_owner
+        context["comments"] = self.object.comments.select_related("author")
+        context["comment_form"] = CommentForm()
         context["games"] = (
             self.object.games.select_related("developer")
             .prefetch_related("genres")

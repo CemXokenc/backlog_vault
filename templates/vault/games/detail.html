@@ -29,7 +29,8 @@
           <p class="text-body-secondary mb-2">
             {{ game.release_year }}
             &middot;
-            {% if game.developer %}{{ game.developer.name }} ({{ game.developer.country }}){% else %}Unknown developer{% endif %}
+            {% if game.developer %}{{ game.developer.name }} ({{ game.developer.country }}){% else %}Unknown
+              developer{% endif %}
           </p>
         </div>
         <div class="text-nowrap">
@@ -60,7 +61,8 @@
       <div class="d-flex gap-4 mb-3">
         <div>
           <div class="fs-4 fw-semibold">
-            {% if game.avg_rating %}<i class="bi bi-star-fill text-warning"></i> {{ game.avg_rating|floatformat:1 }}{% else %}&ndash;{% endif %}
+            {% if game.avg_rating %}<i class="bi bi-star-fill text-warning"></i>
+              {{ game.avg_rating|floatformat:1 }}{% else %}&ndash;{% endif %}
           </div>
           <div class="text-body-secondary small">Average rating</div>
         </div>
@@ -80,10 +82,14 @@
             {% endif %}
           </span>
           <span class="text-nowrap">
-            <a class="btn btn-sm btn-outline-secondary" href="{% url 'vault:library-update' my_entry.pk %}?next={{ request.get_full_path|urlencode }}" title="Edit status, rating, hours">
+            <a class="btn btn-sm btn-outline-secondary"
+               href="{% url 'vault:library-update' my_entry.pk %}?next={{ request.get_full_path|urlencode }}"
+               title="Edit status, rating, hours">
               <i class="bi bi-pencil"></i>
             </a>
-            <a class="btn btn-sm btn-outline-danger" href="{% url 'vault:library-delete' my_entry.pk %}?next={{ request.get_full_path|urlencode }}" title="Remove from library">
+            <a class="btn btn-sm btn-outline-danger"
+               href="{% url 'vault:library-delete' my_entry.pk %}?next={{ request.get_full_path|urlencode }}"
+               title="Remove from library">
               <i class="bi bi-trash"></i>
             </a>
           </span>
@@ -159,30 +165,32 @@
     <div class="table-responsive">
       <table class="table table-hover align-middle">
         <thead>
-          <tr>
-            <th>Gamer</th>
-            <th>Status</th>
-            <th class="text-center">Rating</th>
-            <th class="text-center">Hours</th>
-            <th>Platform</th>
-          </tr>
+        <tr>
+          <th>Gamer</th>
+          <th>Status</th>
+          <th class="text-center">Rating</th>
+          <th class="text-center">Hours</th>
+          <th>Platform</th>
+        </tr>
         </thead>
         <tbody>
-          {% for entry in entries %}
-            <tr>
-              <td>{{ entry.gamer.nickname|default:entry.gamer.username }}</td>
-              <td>
-                {% include "includes/status_badge.html" with status=entry.status label=entry.get_status_display %}
-              </td>
-              <td class="text-center">{{ entry.rating|default:"–" }}</td>
-              <td class="text-center">{{ entry.hours_played }}</td>
-              <td>{{ entry.platform|default:"–" }}</td>
-            </tr>
-          {% endfor %}
+        {% for entry in entries %}
+          <tr>
+            <td>{{ entry.gamer.nickname|default:entry.gamer.username }}</td>
+            <td>
+              {% include "includes/status_badge.html" with status=entry.status label=entry.get_status_display %}
+            </td>
+            <td class="text-center">{{ entry.rating|default:"–" }}</td>
+            <td class="text-center">{{ entry.hours_played }}</td>
+            <td>{{ entry.platform|default:"–" }}</td>
+          </tr>
+        {% endfor %}
         </tbody>
       </table>
     </div>
   {% else %}
     <p class="text-body-secondary">Nobody has added this game to a library yet.</p>
   {% endif %}
+  {% url 'vault:game-comment-add' game.pk as post_url %}
+  {% include "includes/comments.html" with post_url=post_url %}
 {% endblock %}
