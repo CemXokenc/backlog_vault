@@ -1,7 +1,15 @@
 from django.contrib.auth.forms import UserCreationForm
 from django import forms
 
-from vault.models import Gamer, Genre, Platform, Game, LibraryEntry, Collection
+from vault.models import (
+    Gamer,
+    Genre,
+    Platform,
+    Game,
+    LibraryEntry,
+    Collection,
+    Comment,
+)
 
 
 class GamerCreationForm(UserCreationForm):
@@ -137,3 +145,15 @@ class GamerUpdateForm(forms.ModelForm):
         model = Gamer
         fields = ["nickname", "bio", "favorite_genre"]
         widgets = {"bio": forms.Textarea(attrs={"rows": 3})}
+
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ["text"]
+        labels = {"text": ""}
+        widgets = {
+            "text": forms.Textarea(
+                attrs={"rows": 3, "placeholder": "Write a comment..."},
+            ),
+        }
