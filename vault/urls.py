@@ -8,6 +8,7 @@ from vault.views import (
     home,
     library,
     reference,
+    comments,
 )
 
 urlpatterns = [
@@ -179,6 +180,21 @@ urlpatterns = [
         "gamers/<int:pk>/update/",
         gamers.GamerUpdateView.as_view(),
         name="gamer-update",
+    ),
+    path(
+        "games/<int:pk>/comments/add/",
+        comments.game_comment_add,
+        name="game-comment-add",
+    ),
+    path(
+        "collections/<int:pk>/comments/add/",
+        comments.collection_comment_add,
+        name="collection-comment-add",
+    ),
+    path(
+        "comments/<int:pk>/delete/",
+        comments.comment_delete,
+        name="comment-delete",
     ),
 ]
 
