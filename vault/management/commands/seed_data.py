@@ -3,6 +3,12 @@ from datetime import date
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
+from vault.management.commands._activity import (
+    EXTRA_COLLECTION_COMMENTS,
+    EXTRA_COLLECTIONS,
+    EXTRA_ENTRIES,
+    EXTRA_GAME_COMMENTS,
+)
 from vault.management.commands._catalog import (
     DEVELOPERS,
     GAMES,
@@ -470,7 +476,7 @@ class Command(BaseCommand):
 
     @staticmethod
     def create_entries(gamers, games, platforms):
-        for entry in ENTRIES:
+        for entry in ENTRIES + EXTRA_ENTRIES:
             if len(entry) == 7:
                 username, title, status, rating, hours, platform_name, note = (
                     entry
@@ -504,7 +510,9 @@ class Command(BaseCommand):
 
     @staticmethod
     def create_collections(gamers, games):
-        for owner, title, description, game_titles in COLLECTIONS:
+        for owner, title, description, game_titles in (
+            COLLECTIONS + EXTRA_COLLECTIONS
+        ):
             collection, _ = Collection.objects.update_or_create(
                 owner=gamers[owner],
                 title=title,
@@ -514,13 +522,15 @@ class Command(BaseCommand):
 
     @staticmethod
     def create_comments(gamers, games):
-        for author, title, text in GAME_COMMENTS:
+        for author, title, text in GAME_COMMENTS + EXTRA_GAME_COMMENTS:
             Comment.objects.get_or_create(
                 author=gamers[author],
                 game=games[title],
                 text=text,
             )
-        for author, title, text in COLLECTION_COMMENTS:
+        for author, title, text in (
+            COLLECTION_COMMENTS + EXTRA_COLLECTION_COMMENTS
+        ):
             Comment.objects.get_or_create(
                 author=gamers[author],
                 collection=Collection.objects.get(title=title),
