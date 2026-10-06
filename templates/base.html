@@ -54,15 +54,23 @@
             <a class="nav-link {% if gamers_url and gamers_url in request.path %}active{% endif %}"
                href="{{ gamers_url|default:'#' }}">Gamers</a>
           </li>
+          {% if perms.vault.view_genre or perms.vault.view_platform or perms.vault.view_developer %}
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" role="button"
                data-bs-toggle="dropdown" aria-expanded="false">Reference</a>
             <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="{{ genres_url|default:'#' }}">Genres</a></li>
-              <li><a class="dropdown-item" href="{{ platforms_url|default:'#' }}">Platforms</a></li>
-              <li><a class="dropdown-item" href="{{ developers_url|default:'#' }}">Developers</a></li>
+              {% if perms.vault.view_genre %}
+                <li><a class="dropdown-item" href="{{ genres_url|default:'#' }}">Genres</a></li>
+              {% endif %}
+              {% if perms.vault.view_platform %}
+                <li><a class="dropdown-item" href="{{ platforms_url|default:'#' }}">Platforms</a></li>
+              {% endif %}
+              {% if perms.vault.view_developer %}
+                <li><a class="dropdown-item" href="{{ developers_url|default:'#' }}">Developers</a></li>
+              {% endif %}
             </ul>
           </li>
+          {% endif %}
         {% endif %}
       </ul>
 

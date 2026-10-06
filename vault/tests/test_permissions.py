@@ -110,14 +110,11 @@ class CatalogPermissionTests(TestCase):
         self.assertTrue(Platform.objects.filter(name="Switch").exists())
         self.assertTrue(Developer.objects.filter(name="Valve").exists())
 
-    def test_everyone_can_still_browse_the_catalog(self):
+    def test_everyone_can_browse_the_catalog(self):
         self.client.force_login(self.regular)
         pages = [
             ("vault:game-list", []),
             ("vault:game-detail", [self.catalog.game.pk]),
-            ("vault:genre-list", []),
-            ("vault:platform-list", []),
-            ("vault:developer-list", []),
         ]
         for name, args in pages:
             with self.subTest(page=name):
@@ -184,7 +181,8 @@ class CatalogButtonsTests(TestCase):
 
     def test_regular_user_sees_no_catalog_buttons(self):
         self.client.force_login(self.regular)
-        for name, links in self.pages().items():
+        pages = {"vault:game-list": self.pages()["vault:game-list"]}
+        for name, links in pages.items():
             response = self.client.get(reverse(name))
             for link in links:
                 with self.subTest(page=name, link=link):
@@ -221,3 +219,45 @@ class CatalogButtonsTests(TestCase):
             response,
             reverse("vault:library-create", args=[game.pk]),
         )
+
+
+class ReferenceAccessTests(TestCase):
+    """Genres, platforms and developers are for moderators and admins."""
+
+    PAGES = ("vault:genre-list", "vault:platform-list", "vault:developer-list")
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.regular = create_gamer("regular")
+        cls.moderator = create_gamer("moderator", is_staff=True)
+        cls.moderator.groups.add(ensure_moderators_group())
+
+    def test_regular_user_gets_403_on_reference_lists(self):
+        self.client.force_login(self.regular)
+        for name in self.PAGES:
+            with self.subTest(page=name):
+                response = self.client.get(reverse(name))
+                self.assertEqual(response.status_code, 403)
+
+    def test_moderator_opens_reference_lists(self):
+        self.client.force_login(self.moderator)
+        for name in self.PAGES:
+            with self.subTest(page=name):
+                response = self.client.get(reverse(name))
+                self.assertEqual(response.status_code, 200)
+
+    def test_regular_user_sees_no_reference_links(self):
+        self.client.force_login(self.regular)
+        for page in ("vault:index", "vault:game-list"):
+            response = self.client.get(reverse(page))
+            with self.subTest(page=page):
+                self.assertNotContains(response, ">Reference<")
+                for name in self.PAGES:
+                    self.assertNotContains(response, reverse(name))
+
+    def test_moderator_sees_reference_menu_and_tiles(self):
+        self.client.force_login(self.moderator)
+        response = self.client.get(reverse("vault:index"))
+        self.assertContains(response, ">Reference</a>")
+        for name in self.PAGES:
+            self.assertContains(response, reverse(name))
