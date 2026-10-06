@@ -29,8 +29,8 @@ SECRET_KEY = os.environ.get(
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # Set DJANGO_DEBUG=0 to turn it off.
-DEBUG = os.environ.get("DJANGO_DEBUG", "1") == "1"
-
+DEBUG = os.environ.get("DJANGO_DEBUG", "") != "False"
+git
 # Header buttons that sign in as the demo admin, moderator or user.
 # Enabled together with DEBUG by default; never enable on a public server.
 DEMO_MODE = os.environ.get("DJANGO_DEMO_MODE", "1" if DEBUG else "0") == "1"
