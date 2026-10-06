@@ -11,6 +11,8 @@ from vault.tests.helpers import (
     create_moderator,
 )
 
+PUBLIC_PAGES = {"vault:index", "vault:game-list", "vault:game-detail"}
+
 
 class SmokeTests(TestCase):
     """Every page must open for a moderator and redirect guests."""
@@ -66,6 +68,8 @@ class SmokeTests(TestCase):
 
     def test_pages_redirect_guests_to_login(self):
         for name, args in self.pages():
+            if name in PUBLIC_PAGES:
+                continue
             with self.subTest(page=name):
                 response = self.client.get(reverse(name, args=args))
                 self.assertEqual(response.status_code, 302)
@@ -99,3 +103,11 @@ class SmokeTests(TestCase):
             with self.subTest(search=name):
                 url = reverse(f"vault:{name}-list") + "?query=a"
                 self.assertEqual(self.client.get(url).status_code, 200)
+
+    def test_public_pages_open_for_guests(self):
+        for name, args in self.pages():
+            if name not in PUBLIC_PAGES:
+                continue
+            with self.subTest(page=name):
+                response = self.client.get(reverse(name, args=args))
+                self.assertEqual(response.status_code, 200)

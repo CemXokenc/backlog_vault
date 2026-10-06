@@ -1,4 +1,3 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.urls import reverse_lazy
 from django.views import generic
@@ -20,7 +19,6 @@ from vault.models import (
 
 
 class GameListView(
-    LoginRequiredMixin,
     SearchMixin,
     generic.ListView,
 ):
@@ -51,7 +49,6 @@ class GameListView(
 
 
 class GameDetailView(
-    LoginRequiredMixin,
     generic.DetailView,
 ):
     template_name = "vault/games/detail.html"
@@ -63,25 +60,29 @@ class GameDetailView(
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        user = self.request.user
         context["entries"] = LibraryEntry.objects.filter(
             game=self.object,
         ).select_related("gamer", "platform")
+        context["comments"] = self.object.comments.select_related("author")
+        if not user.is_authenticated:
+            return context
+
+        context["comment_form"] = CommentForm()
         context["my_entry"] = LibraryEntry.objects.filter(
-            gamer=self.request.user,
+            gamer=user,
             game=self.object,
         ).first()
         context["game_collections"] = self.object.collections.select_related(
             "owner",
         )
-        my_collections = Collection.objects.filter(owner=self.request.user)
+        my_collections = Collection.objects.filter(owner=user)
         context["addable_collections"] = my_collections.exclude(
             games=self.object,
         )
         context["removable_collections"] = my_collections.filter(
             games=self.object,
         )
-        context["comments"] = self.object.comments.select_related("author")
-        context["comment_form"] = CommentForm()
 
         return context
 

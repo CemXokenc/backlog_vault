@@ -72,8 +72,9 @@
         </div>
       </div>
 
-      {% if my_entry %}
-        <div class="alert alert-secondary d-flex justify-content-between align-items-center py-2">
+      {% if user.is_authenticated %}
+        {% if my_entry %}
+          <div class="alert alert-secondary d-flex justify-content-between align-items-center py-2">
           <span>
             In your library:
             {% include "includes/status_badge.html" with status=my_entry.status label=my_entry.get_status_display %}
@@ -81,7 +82,7 @@
               &middot; <i class="bi bi-star-fill text-warning"></i> {{ my_entry.rating }}
             {% endif %}
           </span>
-          <span class="text-nowrap">
+            <span class="text-nowrap">
             <a class="btn btn-sm btn-outline-secondary"
                href="{% url 'vault:library-update' my_entry.pk %}?next={{ request.get_full_path|urlencode }}"
                title="Edit status, rating, hours">
@@ -93,66 +94,75 @@
               <i class="bi bi-trash"></i>
             </a>
           </span>
-        </div>
-      {% else %}
-        <a class="btn btn-primary mb-3" href="{% url 'vault:library-create' game.pk %}">
-          <i class="bi bi-plus-lg"></i> Add to library
-        </a>
-      {% endif %}
-
-      <div class="mb-3">
-        {% if game_collections %}
-          <div class="mb-2 small">
-            In collections:
-            {% for collection in game_collections %}
-              <a class="badge text-bg-secondary text-decoration-none"
-                 href="{% url 'vault:collection-detail' collection.pk %}">{{ collection.title }}</a>
-            {% endfor %}
           </div>
+        {% else %}
+          <a class="btn btn-primary mb-3" href="{% url 'vault:library-create' game.pk %}">
+            <i class="bi bi-plus-lg"></i> Add to library
+          </a>
         {% endif %}
-        <div class="d-flex flex-wrap gap-2">
-          <div class="dropdown">
-            <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button"
-                    data-bs-toggle="dropdown" aria-expanded="false">
-              <i class="bi bi-collection"></i> Add to collection
-            </button>
-            <ul class="dropdown-menu">
-              {% for collection in addable_collections %}
-                <li>
-                  <form method="post" action="{% url 'vault:collection-add-game' collection.pk %}">
-                    {% csrf_token %}
-                    <input type="hidden" name="game" value="{{ game.pk }}">
-                    <input type="hidden" name="next" value="{{ request.path }}">
-                    <button type="submit" class="dropdown-item">{{ collection.title }}</button>
-                  </form>
-                </li>
-              {% empty %}
-                <li><span class="dropdown-item-text text-body-secondary small">No collections available.</span></li>
+
+
+        <div class="mb-3">
+          {% if game_collections %}
+            <div class="mb-2 small">
+              In collections:
+              {% for collection in game_collections %}
+                <a class="badge text-bg-secondary text-decoration-none"
+                   href="{% url 'vault:collection-detail' collection.pk %}">{{ collection.title }}</a>
               {% endfor %}
-            </ul>
-          </div>
-          {% if removable_collections %}
+            </div>
+          {% endif %}
+          <div class="d-flex flex-wrap gap-2">
             <div class="dropdown">
-              <button class="btn btn-outline-danger btn-sm dropdown-toggle" type="button"
+              <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button"
                       data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="bi bi-dash-circle"></i> Remove from collection
+                <i class="bi bi-collection"></i> Add to collection
               </button>
               <ul class="dropdown-menu">
-                {% for collection in removable_collections %}
+                {% for collection in addable_collections %}
                   <li>
-                    <form method="post"
-                          action="{% url 'vault:collection-remove-game' collection.pk game.pk %}">
+                    <form method="post" action="{% url 'vault:collection-add-game' collection.pk %}">
                       {% csrf_token %}
+                      <input type="hidden" name="game" value="{{ game.pk }}">
                       <input type="hidden" name="next" value="{{ request.path }}">
                       <button type="submit" class="dropdown-item">{{ collection.title }}</button>
                     </form>
                   </li>
+                {% empty %}
+                  <li><span class="dropdown-item-text text-body-secondary small">No collections available.</span></li>
                 {% endfor %}
               </ul>
             </div>
-          {% endif %}
+            {% if removable_collections %}
+              <div class="dropdown">
+                <button class="btn btn-outline-danger btn-sm dropdown-toggle" type="button"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                  <i class="bi bi-dash-circle"></i> Remove from collection
+                </button>
+                <ul class="dropdown-menu">
+                  {% for collection in removable_collections %}
+                    <li>
+                      <form method="post"
+                            action="{% url 'vault:collection-remove-game' collection.pk game.pk %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.path }}">
+                        <button type="submit" class="dropdown-item">{{ collection.title }}</button>
+                      </form>
+                    </li>
+                  {% endfor %}
+                </ul>
+              </div>
+            {% endif %}
+          </div>
         </div>
-      </div>
+      {% else %}
+        <div class="alert alert-secondary">
+          <i class="bi bi-lock me-1"></i>
+          <a href="{% url 'login' %}?next={{ request.path|urlencode }}">Log in</a>
+          or <a href="{% url 'vault:register' %}">register</a>
+          to add this game to your library and collections.
+        </div>
+      {% endif %}
 
       {% if game.description %}
         <p>{{ game.description }}</p>
