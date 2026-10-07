@@ -8,9 +8,12 @@
     <div class="col-xl-10">
       <div class="card shadow-sm">
         <div class="card-body p-4 p-lg-5">
-          <h1 class="h4 mb-4">
-            {% if object %}Edit {{ object.title }}{% else %}Add game{% endif %}
-          </h1>
+          <div class="form-header">
+            <span class="page-icon"><i class="bi bi-controller"></i></span>
+            <div>
+              <h1>{% if object %}Edit {{ object.title }}{% else %}Add game{% endif %}</h1>
+            </div>
+          </div>
 
           <form method="post" enctype="multipart/form-data" novalidate>
             {% csrf_token %}

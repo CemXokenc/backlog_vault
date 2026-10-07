@@ -9,22 +9,27 @@
     <div class="col-md-10 col-lg-7">
       <div class="card shadow-sm">
         <div class="card-body p-4">
-          <h1 class="h4 mb-1">
-            {% if object %}Edit library entry{% else %}Add to library{% endif %}
-          </h1>
-          <p class="text-body-secondary mb-4">{{ form.instance.game.title }}</p>
+          <div class="form-header">
+            <span class="page-icon"><i class="bi bi-journal-check"></i></span>
+            <div>
+              <h1>{% if object %}Edit library entry{% else %}Add to library{% endif %}</h1>
+              <p>{{ form.instance.game.title }}</p>
+            </div>
+          </div>
           <form method="post" novalidate>
             {% csrf_token %}
             {% if next_url %}<input type="hidden" name="next" value="{{ next_url }}">{% endif %}
             {{ form|crispy }}
-            <button type="submit" class="btn btn-primary">Save</button>
-            {% if next_url %}
-              <a class="btn btn-outline-secondary" href="{{ next_url }}">Cancel</a>
-            {% elif object %}
-              <a class="btn btn-outline-secondary" href="{% url 'vault:library-list' %}">Cancel</a>
-            {% else %}
-              <a class="btn btn-outline-secondary" href="{% url 'vault:game-detail' form.instance.game.pk %}">Cancel</a>
-            {% endif %}
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">Save</button>
+              {% if next_url %}
+                <a class="btn btn-outline-secondary" href="{{ next_url }}">Cancel</a>
+              {% elif object %}
+                <a class="btn btn-outline-secondary" href="{% url 'vault:library-list' %}">Cancel</a>
+              {% else %}
+                <a class="btn btn-outline-secondary" href="{% url 'vault:game-detail' form.instance.game.pk %}">Cancel</a>
+              {% endif %}
+            </div>
           </form>
         </div>
       </div>

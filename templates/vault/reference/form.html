@@ -8,14 +8,19 @@
     <div class="col-md-8 col-lg-5">
       <div class="card shadow-sm">
         <div class="card-body p-4">
-          <h1 class="h4 mb-4">
-            {% if object %}Edit{% else %}Add{% endif %} {{ ref.title|lower }}
-          </h1>
+          <div class="form-header">
+            <span class="page-icon"><i class="bi bi-tags"></i></span>
+            <div>
+              <h1>{% if object %}Edit{% else %}Add{% endif %} {{ ref.title|lower }}</h1>
+            </div>
+          </div>
           <form method="post" novalidate>
             {% csrf_token %}
             {{ form|crispy }}
-            <button type="submit" class="btn btn-primary">Save</button>
-            <a class="btn btn-outline-secondary" href="{{ ref.list_url }}">Cancel</a>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">Save</button>
+              <a class="btn btn-outline-secondary" href="{{ ref.list_url }}">Cancel</a>
+            </div>
           </form>
         </div>
       </div>
