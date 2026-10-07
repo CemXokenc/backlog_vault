@@ -179,7 +179,7 @@
 
   <h2 class="h5 mb-3">Who plays this</h2>
   {% if entries %}
-    <div class="table-responsive">
+    <div class="table-card"><div class="table-responsive">
       <table class="table table-hover align-middle">
         <thead>
         <tr>
@@ -193,7 +193,12 @@
         <tbody>
         {% for entry in entries %}
           <tr>
-            <td>{{ entry.gamer.nickname|default:entry.gamer.username }}</td>
+            <td>
+              <span class="d-inline-flex align-items-center gap-2">
+                {% include "includes/avatar.html" with gamer=entry.gamer size="avatar-sm" %}
+                {{ entry.gamer.nickname|default:entry.gamer.username }}
+              </span>
+            </td>
             <td>
               {% include "includes/status_badge.html" with status=entry.status label=entry.get_status_display %}
             </td>
@@ -204,9 +209,9 @@
         {% endfor %}
         </tbody>
       </table>
-    </div>
+    </div></div>
   {% else %}
-    <p class="text-body-secondary">Nobody has added this game to a library yet.</p>
+    {% include "includes/empty_state.html" with icon="people" title="Nobody plays this yet" text="Be the first to add it to your library." %}
   {% endif %}
   {% url 'vault:game-comment-add' game.pk as post_url %}
   {% include "includes/comments.html" with post_url=post_url %}

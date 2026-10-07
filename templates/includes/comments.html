@@ -11,10 +11,7 @@
         <form method="post" action="{{ post_url }}">
           {% csrf_token %}
           <div class="d-flex gap-3">
-            <div class="rounded-circle text-bg-primary d-none d-sm-flex align-items-center justify-content-center fw-semibold flex-shrink-0"
-                 style="width: 40px; height: 40px;">
-              {{ user.nickname|default:user.username|slice:":1"|upper }}
-            </div>
+            <span class="d-none d-sm-inline">{% include "includes/avatar.html" with gamer=user %}</span>
             <div class="flex-grow-1">
               <label for="{{ comment_form.text.id_for_label }}" class="visually-hidden">Your comment</label>
               {{ comment_form.text }}
@@ -57,10 +54,7 @@
       <article class="card border-0 bg-body-tertiary" id="comment-{{ comment.pk }}">
         <div class="card-body">
           <div class="d-flex gap-3">
-            <div class="rounded-circle text-bg-secondary d-flex align-items-center justify-content-center fw-semibold flex-shrink-0"
-                 style="width: 40px; height: 40px;">
-              {{ comment.author.nickname|default:comment.author.username|slice:":1"|upper }}
-            </div>
+            {% include "includes/avatar.html" with gamer=comment.author %}
             <div class="flex-grow-1">
               <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
                 <div class="d-flex flex-wrap align-items-center gap-2">

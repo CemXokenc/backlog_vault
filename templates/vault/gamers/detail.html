@@ -12,7 +12,7 @@
 
   <section class="profile-hero">
     <div class="d-flex gap-3 align-items-center">
-      <span class="avatar avatar-lg">{{ gamer.nickname|default:gamer.username|slice:":1" }}</span>
+      {% include "includes/avatar.html" with gamer=gamer size="avatar-lg" %}
       <div>
         <h1 class="page-title">{{ gamer.nickname|default:gamer.username }}</h1>
         <p class="text-body-secondary mb-2">
