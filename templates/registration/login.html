@@ -9,7 +9,9 @@
     <div class="col-md-6 col-lg-4">
       <div class="card shadow-sm">
         <div class="card-body p-4">
-          <h1 class="h4 mb-4 text-center">Log in</h1>
+          <div class="auth-icon"><i class="bi bi-box-arrow-in-right"></i></div>
+          <h1 class="h4 mb-1 text-center">Welcome back</h1>
+          <p class="text-body-secondary text-center mb-4">Log in to continue to your library.</p>
           <form method="post" novalidate>
             {% csrf_token %}
             {{ form|crispy }}

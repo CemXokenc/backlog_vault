@@ -10,34 +10,33 @@
     </ol>
   </nav>
 
-  <div class="d-flex justify-content-between align-items-start gap-3 mb-4">
+  <section class="profile-hero">
     <div class="d-flex gap-3 align-items-center">
-      <i class="bi bi-person-circle display-3 text-primary"></i>
+      <span class="avatar avatar-lg">{{ gamer.nickname|default:gamer.username|slice:":1" }}</span>
       <div>
-        <h1 class="h3 mb-0">{{ gamer.nickname|default:gamer.username }}</h1>
-        <p class="text-body-secondary mb-1">
+        <h1 class="page-title">{{ gamer.nickname|default:gamer.username }}</h1>
+        <p class="text-body-secondary mb-2">
           @{{ gamer.username }} &middot; joined {{ gamer.date_joined|date:"M Y" }}
         </p>
         {% if gamer.favorite_genre %}
           <span class="badge text-bg-primary">Favorite genre: {{ gamer.favorite_genre.name }}</span>
         {% endif %}
+        {% if gamer.bio %}
+          <p class="mt-3 mb-0">{{ gamer.bio }}</p>
+        {% endif %}
       </div>
     </div>
     {% if is_me %}
-      <div class="text-nowrap">
-        <a class="btn btn-outline-primary btn-sm" href="{% url 'vault:library-list' %}">
+      <div class="page-actions">
+        <a class="btn btn-primary" href="{% url 'vault:library-list' %}">
           <i class="bi bi-collection"></i> My library
         </a>
-        <a class="btn btn-outline-secondary btn-sm" href="{% url 'vault:gamer-update' gamer.pk %}">
+        <a class="btn btn-outline-secondary" href="{% url 'vault:gamer-update' gamer.pk %}">
           <i class="bi bi-pencil"></i> Edit profile
         </a>
       </div>
     {% endif %}
-  </div>
-
-  {% if gamer.bio %}
-    <p>{{ gamer.bio }}</p>
-  {% endif %}
+  </section>
 
   <div class="row g-3 mb-4">
     {% include "includes/stat_card.html" with icon="controller" value=stats.total label="Games in library" %}
@@ -82,7 +81,7 @@
     <div class="col-lg-7">
       <h2 class="h5 mb-3">Recent games</h2>
       {% if recent_entries %}
-        <div class="table-responsive">
+        <div class="table-card"><div class="table-responsive">
           <table class="table table-hover align-middle">
             <thead>
               <tr>
@@ -105,25 +104,25 @@
               {% endfor %}
             </tbody>
           </table>
-        </div>
+        </div></div>
       {% else %}
-        <p class="text-body-secondary">No games in the library yet.</p>
+        {% include "includes/empty_state.html" with icon="controller" title="No games yet" text="The library is empty." %}
       {% endif %}
     </div>
 
     <div class="col-lg-5">
       <h2 class="h5 mb-3">Collections</h2>
       {% if collections %}
-        <ul class="list-group">
+        <div class="card"><ul class="list-group list-group-flush">
           {% for collection in collections %}
             <li class="list-group-item d-flex justify-content-between align-items-center">
               <a href="{% url 'vault:collection-detail' collection.pk %}">{{ collection.title }}</a>
               <span class="badge text-bg-secondary">{{ collection.num_games }}</span>
             </li>
           {% endfor %}
-        </ul>
+        </ul></div>
       {% else %}
-        <p class="text-body-secondary">No collections yet.</p>
+        {% include "includes/empty_state.html" with icon="collection" title="No collections yet" %}
       {% endif %}
     </div>
   </div>
