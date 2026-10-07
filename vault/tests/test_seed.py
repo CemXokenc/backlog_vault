@@ -81,6 +81,11 @@ class SeedDataTests(TestCase):
                     entry.game.platforms.filter(pk=entry.platform.pk).exists(),
                 )
 
+    def test_every_gamer_gets_an_avatar(self):
+        for gamer in Gamer.objects.all():
+            with self.subTest(gamer=gamer.username):
+                self.assertIn(gamer.username, gamer.avatar_source)
+
     def test_steam_games_get_cover_urls(self):
         with_cover = Game.objects.exclude(cover_url="")
         self.assertGreaterEqual(with_cover.count(), 50)

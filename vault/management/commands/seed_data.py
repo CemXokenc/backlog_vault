@@ -33,6 +33,9 @@ from vault.roles import ensure_moderators_group
 
 DEMO_PASSWORD = "testpass123"
 
+# Generated pixel-art avatars (https://www.dicebear.com), one per username.
+AVATAR_URL = "https://api.dicebear.com/9.x/pixel-art/svg?seed={}"
+
 GAMERS = [
     {
         "username": "alex",
@@ -473,6 +476,9 @@ class Command(BaseCommand):
             if created:
                 gamer.set_password(DEMO_PASSWORD)
                 gamer.save()
+            if not gamer.avatar and not gamer.avatar_url:
+                gamer.avatar_url = AVATAR_URL.format(gamer.username)
+                gamer.save(update_fields=["avatar_url"])
             Command.apply_role(gamer, spec.get("role"))
             gamers[gamer.username] = gamer
         return gamers
