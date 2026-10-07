@@ -3,62 +3,190 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-  <div class="p-4 p-md-5 mb-4 rounded-3 bg-body-tertiary border">
-    <div class="d-flex justify-content-between align-items-start gap-3">
-      <div>
-        <h1 class="display-6 fw-semibold mb-2">Welcome back, {{ user.nickname|default:user.username }}!</h1>
-        <p class="lead text-body-secondary mb-0">
-          Keep track of your games, ratings and playtime in one place.
-        </p>
+  <section class="landing-hero mb-4">
+    {% if cover_wall %}
+      <div class="cover-wall" aria-hidden="true">
+        {% for row in cover_wall %}
+          <div class="cover-row{% if forloop.counter0|divisibleby:2 %}{% else %} cover-row-reverse{% endif %}">
+            {% for cover in row %}
+              <img src="{{ cover }}" alt="" loading="lazy">
+            {% endfor %}
+          </div>
+        {% endfor %}
       </div>
-      <span class="badge text-bg-secondary text-nowrap"
-            title="How many times you opened the home page in this session">
-      <i class="bi bi-eye"></i> Visit #{{ num_visits }}
-    </span>
+    {% endif %}
+
+    <div class="landing-hero-content">
+      <div class="d-flex align-items-center gap-3 mb-3 fade-up">
+        {% include "includes/avatar.html" with gamer=user size="avatar-lg" %}
+        <div>
+          <span class="badge rounded-pill text-bg-primary"
+                title="How many times you opened the home page in this session">
+            <i class="bi bi-eye me-1"></i>Visit #{{ num_visits }}
+          </span>
+          <div class="text-body-secondary mt-1">@{{ user.username }}</div>
+        </div>
+      </div>
+      <h1 class="landing-title display-5 fw-bold fade-up delay-1">
+        Welcome back, {{ user.nickname|default:user.username }}!
+      </h1>
+      <p class="lead text-body-secondary mt-3 mb-4 fade-up delay-2">
+        Keep track of your games, ratings and playtime in one place.
+      </p>
+      <div class="d-flex flex-wrap gap-2 fade-up delay-3">
+        <a class="btn btn-primary btn-lg" href="{% url 'vault:game-list' %}">
+          <i class="bi bi-controller"></i> Browse the catalog
+        </a>
+        <a class="btn btn-outline-primary btn-lg" href="{% url 'vault:library-list' %}">
+          <i class="bi bi-journal-check"></i> My library
+        </a>
+      </div>
     </div>
+  </section>
+
+  <div class="row g-3 mb-4">
+    {% include "includes/stat_card.html" with icon="journal-check" value=my_library.total label="In your library" %}
+    {% include "includes/stat_card.html" with icon="play-circle" value=my_library.playing label="Playing now" %}
+    {% include "includes/stat_card.html" with icon="trophy" value=my_library.completed label="Completed" %}
+    {% if my_library.avg_rating %}
+      {% include "includes/stat_card.html" with icon="star" value=my_library.avg_rating|floatformat:1 label="Your average rating" %}
+    {% else %}
+      {% include "includes/stat_card.html" with icon="star" value="–" label="Your average rating" %}
+    {% endif %}
   </div>
 
-  <div class="row row-cols-1 row-cols-sm-2 row-cols-xl-4 g-3 mb-4">
+  <div class="row row-cols-2 row-cols-lg-4 g-3 mb-5">
     <div class="col">
       <a class="card game-card h-100 text-decoration-none" href="{% url 'vault:game-list' %}">
-        <div class="card-body text-center py-4">
-          <i class="bi bi-controller display-5 text-primary"></i>
-          <h2 class="h5 mt-3 mb-1">Catalog</h2>
-          <p class="text-body-secondary small mb-0">{{ num_games }} game{{ num_games|pluralize }} to explore</p>
+        <div class="card-body d-flex align-items-center gap-3">
+          <span class="page-icon"><i class="bi bi-controller"></i></span>
+          <div>
+            <div class="fw-semibold">Catalog</div>
+            <div class="small text-body-secondary">{{ num_games }} game{{ num_games|pluralize }}</div>
+          </div>
         </div>
       </a>
     </div>
     <div class="col">
       <a class="card game-card h-100 text-decoration-none" href="{% url 'vault:library-list' %}">
-        <div class="card-body text-center py-4">
-          <i class="bi bi-journal-bookmark display-5 text-primary"></i>
-          <h2 class="h5 mt-3 mb-1">My library</h2>
-          <p class="text-body-secondary small mb-0">
-            {{ my_library.total }} game{{ my_library.total|pluralize }}, {{ my_library.playing }} playing now
-          </p>
+        <div class="card-body d-flex align-items-center gap-3">
+          <span class="page-icon"><i class="bi bi-journal-bookmark"></i></span>
+          <div>
+            <div class="fw-semibold">My library</div>
+            <div class="small text-body-secondary">{{ my_library.playing }} playing now</div>
+          </div>
         </div>
       </a>
     </div>
     <div class="col">
       <a class="card game-card h-100 text-decoration-none" href="{% url 'vault:collection-list' %}">
-        <div class="card-body text-center py-4">
-          <i class="bi bi-collection display-5 text-primary"></i>
-          <h2 class="h5 mt-3 mb-1">Collections</h2>
-          <p class="text-body-secondary small mb-0">{{ num_collections }} curated
-            list{{ num_collections|pluralize }}</p>
+        <div class="card-body d-flex align-items-center gap-3">
+          <span class="page-icon"><i class="bi bi-collection"></i></span>
+          <div>
+            <div class="fw-semibold">Collections</div>
+            <div class="small text-body-secondary">{{ num_collections }} list{{ num_collections|pluralize }}</div>
+          </div>
         </div>
       </a>
     </div>
     <div class="col">
       <a class="card game-card h-100 text-decoration-none" href="{% url 'vault:gamer-list' %}">
-        <div class="card-body text-center py-4">
-          <i class="bi bi-people display-5 text-primary"></i>
-          <h2 class="h5 mt-3 mb-1">Gamers</h2>
-          <p class="text-body-secondary small mb-0">{{ num_gamers }} player{{ num_gamers|pluralize }} on the site</p>
+        <div class="card-body d-flex align-items-center gap-3">
+          <span class="page-icon"><i class="bi bi-people"></i></span>
+          <div>
+            <div class="fw-semibold">Gamers</div>
+            <div class="small text-body-secondary">{{ num_gamers }} player{{ num_gamers|pluralize }}</div>
+          </div>
         </div>
       </a>
     </div>
   </div>
+
+  {% if playing_entries %}
+    <section class="mb-5">
+      <div class="d-flex justify-content-between align-items-end mb-3">
+        <h2 class="h3 mb-0">Continue playing</h2>
+        <a class="link-primary text-decoration-none" href="{% url 'vault:library-list' %}?status=playing">
+          All <i class="bi bi-arrow-right"></i>
+        </a>
+      </div>
+      <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-3">
+        {% for entry in playing_entries %}
+          {% include "includes/entry_card.html" %}
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+
+  {% if planned_entries %}
+    <section class="mb-5">
+      <div class="d-flex justify-content-between align-items-end mb-3">
+        <h2 class="h3 mb-0">Up next in your backlog</h2>
+        <a class="link-primary text-decoration-none" href="{% url 'vault:library-list' %}?status=planned">
+          All <i class="bi bi-arrow-right"></i>
+        </a>
+      </div>
+      <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-3">
+        {% for entry in planned_entries %}
+          {% include "includes/entry_card.html" %}
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+
+  {% if not playing_entries and not planned_entries %}
+    <section class="mb-5">
+      {% url 'vault:game-list' as catalog_url %}
+      {% include "includes/empty_state.html" with icon="journal-plus" title="Your backlog is empty" text="Pick your first game in the catalog and it will show up here." url=catalog_url label="Browse catalog" %}
+    </section>
+  {% endif %}
+
+  {% if suggestions %}
+    <section class="mb-5">
+      <div class="d-flex justify-content-between align-items-end mb-3">
+        <div>
+          <h2 class="h3 mb-0">Picked for you</h2>
+          {% if suggestions_by_genre %}
+            <div class="text-body-secondary small">
+              Starting with {{ user.favorite_genre.name }} games you have not added yet.
+            </div>
+          {% endif %}
+        </div>
+        <a class="link-primary text-decoration-none" href="{% url 'vault:game-list' %}">
+          Full catalog <i class="bi bi-arrow-right"></i>
+        </a>
+      </div>
+      <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3">
+        {% for game in suggestions %}
+          {% include "includes/game_card.html" %}
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+
+  {% if latest_comments %}
+    <section class="mb-5">
+      <h2 class="h3 mb-3">Latest comments</h2>
+      <div class="card">
+        <ul class="list-group list-group-flush">
+          {% for comment in latest_comments %}
+            <li class="list-group-item d-flex gap-3 align-items-start py-3">
+              {% include "includes/avatar.html" with gamer=comment.author size="avatar-sm" %}
+              <div style="min-width: 0;">
+                <div class="small text-body-secondary">
+                  <strong class="text-body">{{ comment.author.nickname|default:comment.author.username }}</strong>
+                  on
+                  <a href="{{ comment.get_absolute_url }}#comment-{{ comment.pk }}" class="text-decoration-none">{{ comment.target }}</a>
+                  &middot; {{ comment.created_at|timesince }} ago
+                </div>
+                <div style="overflow-wrap: anywhere;">{{ comment.text|truncatechars:140 }}</div>
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </section>
+  {% endif %}
 
   {% if user.is_staff or perms.vault.view_genre or perms.vault.view_platform or perms.vault.view_developer %}
     <div class="d-flex flex-wrap align-items-center gap-2">

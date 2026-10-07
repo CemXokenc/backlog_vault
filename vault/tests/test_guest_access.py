@@ -126,4 +126,5 @@ class GuestLandingTests(TestCase):
     def test_gamer_does_not_get_the_landing(self):
         self.client.force_login(create_gamer("alex"))
         response = self.client.get(reverse("vault:index"))
-        self.assertNotContains(response, "landing-hero")
+        self.assertContains(response, "Welcome back")
+        self.assertNotContains(response, "How it works")

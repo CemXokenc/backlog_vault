@@ -1,8 +1,9 @@
-from django.db.models import Count, F, Q
+from django.db.models import Avg, Count, F, Q
 from django.shortcuts import render
 
 from vault.models import (
     Collection,
+    Comment,
     Developer,
     Game,
     Gamer,
@@ -57,31 +58,83 @@ def landing(request):
     return render(request, "vault/home_guest.html", context=context)
 
 
-def index(request):
-    if not request.user.is_authenticated:
-        return landing(request)
+DASHBOARD_CARDS = 4
+SUGGESTIONS = 6
+LATEST_COMMENTS = 5
 
-    context = {"num_games": Game.objects.count()}
 
+def get_suggestions(user):
+    """Popular games the gamer has not added yet, favorite genre first.
+
+    Returns the games and how many of them match the favorite genre.
+    """
+    candidates = (
+        Game.objects.with_stats()
+        .select_related("developer")
+        .prefetch_related("genres")
+        .exclude(library_entries__gamer=user)
+        .order_by(
+            "-num_players",
+            F("avg_rating").desc(nulls_last=True),
+            "title",
+        )
+    )
+    suggestions = []
+    if user.favorite_genre_id:
+        favorite_ids = Game.objects.filter(
+            genres=user.favorite_genre_id,
+        ).values("pk")
+        favorites = candidates.filter(pk__in=favorite_ids)
+        suggestions = list(favorites[:SUGGESTIONS])
+    favorite_count = len(suggestions)
+    if favorite_count < SUGGESTIONS:
+        taken = [game.pk for game in suggestions]
+        rest = candidates.exclude(pk__in=taken)[: SUGGESTIONS - favorite_count]
+        suggestions += list(rest)
+    return suggestions, favorite_count
+
+
+def dashboard(request):
+    """Home page of a signed-in gamer."""
+    user = request.user
     num_visits = request.session.get("num_visits", 0) + 1
     request.session["num_visits"] = num_visits
 
-    my_library = LibraryEntry.objects.filter(gamer=request.user).aggregate(
+    entries = LibraryEntry.objects.filter(gamer=user).select_related("game")
+    my_library = entries.aggregate(
         total=Count("id"),
         playing=Count("id", filter=Q(status=LibraryEntry.Status.PLAYING)),
         completed=Count("id", filter=Q(status=LibraryEntry.Status.COMPLETED)),
+        avg_rating=Avg("rating"),
     )
+    playing = entries.filter(status=LibraryEntry.Status.PLAYING)
+    planned = entries.filter(status=LibraryEntry.Status.PLANNED)
+    suggestions, favorite_count = get_suggestions(user)
 
-    context.update(
-        {
-            "num_visits": num_visits,
-            "num_genres": Genre.objects.count(),
-            "num_platforms": Platform.objects.count(),
-            "num_developers": Developer.objects.count(),
-            "num_collections": Collection.objects.count(),
-            "num_gamers": Gamer.objects.count(),
-            "my_library": my_library,
-        },
-    )
-
+    context = {
+        "num_visits": num_visits,
+        "num_games": Game.objects.count(),
+        "num_genres": Genre.objects.count(),
+        "num_platforms": Platform.objects.count(),
+        "num_developers": Developer.objects.count(),
+        "num_collections": Collection.objects.count(),
+        "num_gamers": Gamer.objects.count(),
+        "my_library": my_library,
+        "cover_wall": get_cover_wall(),
+        "playing_entries": playing.order_by("-pk")[:DASHBOARD_CARDS],
+        "planned_entries": planned.order_by("-pk")[:DASHBOARD_CARDS],
+        "suggestions": suggestions,
+        "suggestions_by_genre": favorite_count > 0,
+        "latest_comments": Comment.objects.select_related(
+            "author",
+            "game",
+            "collection",
+        )[:LATEST_COMMENTS],
+    }
     return render(request, "vault/home.html", context=context)
+
+
+def index(request):
+    if request.user.is_authenticated:
+        return dashboard(request)
+    return landing(request)
