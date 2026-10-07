@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.urls import reverse
 
+from vault.models import Game
 from vault.tests.helpers import (
     create_catalog,
     create_collection,
@@ -76,3 +77,53 @@ class GuestHomePageTests(TestCase):
         response = self.client.get(reverse("vault:index"))
         self.assertContains(response, "Welcome back")
         self.assertNotContains(response, "only the game catalog")
+
+
+class GuestLandingTests(TestCase):
+    def make_covered_games(self, count):
+        for number in range(count):
+            Game.objects.create(
+                title=f"Game {number}",
+                release_year=2020,
+                cover_url=f"https://example.com/cover-{number}.jpg",
+            )
+
+    def test_landing_works_on_an_empty_database(self):
+        response = self.client.get(reverse("vault:index"))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, "cover-wall")
+        self.assertNotContains(response, "Popular right now")
+
+    def test_landing_shows_stats_features_and_register_call(self):
+        create_catalog()
+        response = self.client.get(reverse("vault:index"))
+        self.assertContains(response, "How it works")
+        self.assertContains(response, 'data-target="1"')
+        self.assertContains(response, reverse("vault:register"))
+
+    def test_landing_lists_popular_games(self):
+        game = create_catalog().game
+        response = self.client.get(reverse("vault:index"))
+        self.assertContains(response, "Popular right now")
+        self.assertContains(response, game.title)
+
+    def test_cover_wall_needs_enough_covers(self):
+        self.make_covered_games(5)
+        response = self.client.get(reverse("vault:index"))
+        self.assertNotContains(response, "cover-wall")
+
+    def test_cover_wall_has_three_looping_rows(self):
+        self.make_covered_games(6)
+        html = self.client.get(reverse("vault:index")).content.decode()
+        self.assertEqual(html.count('class="cover-row'), 3)
+        self.assertEqual(html.count("cover-row-reverse"), 1)
+        # Every row holds its 8 covers twice, so the animation can loop.
+        wall = html[
+            html.index("cover-wall") : html.index("landing-hero-content")
+        ]
+        self.assertEqual(wall.count("<img"), 3 * 8 * 2)
+
+    def test_gamer_does_not_get_the_landing(self):
+        self.client.force_login(create_gamer("alex"))
+        response = self.client.get(reverse("vault:index"))
+        self.assertNotContains(response, "landing-hero")

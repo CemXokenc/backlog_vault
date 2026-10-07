@@ -3,110 +3,88 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-  {% if not user.is_authenticated %}
-    <div class="p-4 p-md-5 mb-4 rounded-3 bg-body-tertiary border">
-      <h1 class="display-6 fw-semibold mb-2">Welcome to Backlog Vault</h1>
-      <p class="lead text-body-secondary">
-        You are not logged in, so only the game catalog is available to you.
-        Log in or create an account to keep your own library, build
-        collections, see other gamers and leave comments.
-      </p>
-      <div class="d-flex flex-wrap gap-2">
-        <a class="btn btn-primary" href="{% url 'login' %}">
-          <i class="bi bi-box-arrow-in-right"></i> Log in
-        </a>
-        <a class="btn btn-outline-primary" href="{% url 'vault:register' %}">
-          <i class="bi bi-person-plus"></i> Register
-        </a>
-        <a class="btn btn-outline-secondary" href="{% url 'vault:game-list' %}">
-          <i class="bi bi-controller"></i> Browse the catalog ({{ num_games }} game{{ num_games|pluralize }})
-        </a>
+  <div class="p-4 p-md-5 mb-4 rounded-3 bg-body-tertiary border">
+    <div class="d-flex justify-content-between align-items-start gap-3">
+      <div>
+        <h1 class="display-6 fw-semibold mb-2">Welcome back, {{ user.nickname|default:user.username }}!</h1>
+        <p class="lead text-body-secondary mb-0">
+          Keep track of your games, ratings and playtime in one place.
+        </p>
       </div>
+      <span class="badge text-bg-secondary text-nowrap"
+            title="How many times you opened the home page in this session">
+      <i class="bi bi-eye"></i> Visit #{{ num_visits }}
+    </span>
     </div>
-  {% else %}
-    <div class="p-4 p-md-5 mb-4 rounded-3 bg-body-tertiary border">
-      <div class="d-flex justify-content-between align-items-start gap-3">
-        <div>
-          <h1 class="display-6 fw-semibold mb-2">Welcome back, {{ user.nickname|default:user.username }}!</h1>
-          <p class="lead text-body-secondary mb-0">
-            Keep track of your games, ratings and playtime in one place.
+  </div>
+
+  <div class="row row-cols-1 row-cols-sm-2 row-cols-xl-4 g-3 mb-4">
+    <div class="col">
+      <a class="card game-card h-100 text-decoration-none" href="{% url 'vault:game-list' %}">
+        <div class="card-body text-center py-4">
+          <i class="bi bi-controller display-5 text-primary"></i>
+          <h2 class="h5 mt-3 mb-1">Catalog</h2>
+          <p class="text-body-secondary small mb-0">{{ num_games }} game{{ num_games|pluralize }} to explore</p>
+        </div>
+      </a>
+    </div>
+    <div class="col">
+      <a class="card game-card h-100 text-decoration-none" href="{% url 'vault:library-list' %}">
+        <div class="card-body text-center py-4">
+          <i class="bi bi-journal-bookmark display-5 text-primary"></i>
+          <h2 class="h5 mt-3 mb-1">My library</h2>
+          <p class="text-body-secondary small mb-0">
+            {{ my_library.total }} game{{ my_library.total|pluralize }}, {{ my_library.playing }} playing now
           </p>
         </div>
-        <span class="badge text-bg-secondary text-nowrap"
-              title="How many times you opened the home page in this session">
-        <i class="bi bi-eye"></i> Visit #{{ num_visits }}
-      </span>
-      </div>
+      </a>
     </div>
-
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-xl-4 g-3 mb-4">
-      <div class="col">
-        <a class="card game-card h-100 text-decoration-none" href="{% url 'vault:game-list' %}">
-          <div class="card-body text-center py-4">
-            <i class="bi bi-controller display-5 text-primary"></i>
-            <h2 class="h5 mt-3 mb-1">Catalog</h2>
-            <p class="text-body-secondary small mb-0">{{ num_games }} game{{ num_games|pluralize }} to explore</p>
-          </div>
-        </a>
-      </div>
-      <div class="col">
-        <a class="card game-card h-100 text-decoration-none" href="{% url 'vault:library-list' %}">
-          <div class="card-body text-center py-4">
-            <i class="bi bi-journal-bookmark display-5 text-primary"></i>
-            <h2 class="h5 mt-3 mb-1">My library</h2>
-            <p class="text-body-secondary small mb-0">
-              {{ my_library.total }} game{{ my_library.total|pluralize }}, {{ my_library.playing }} playing now
-            </p>
-          </div>
-        </a>
-      </div>
-      <div class="col">
-        <a class="card game-card h-100 text-decoration-none" href="{% url 'vault:collection-list' %}">
-          <div class="card-body text-center py-4">
-            <i class="bi bi-collection display-5 text-primary"></i>
-            <h2 class="h5 mt-3 mb-1">Collections</h2>
-            <p class="text-body-secondary small mb-0">{{ num_collections }} curated
-              list{{ num_collections|pluralize }}</p>
-          </div>
-        </a>
-      </div>
-      <div class="col">
-        <a class="card game-card h-100 text-decoration-none" href="{% url 'vault:gamer-list' %}">
-          <div class="card-body text-center py-4">
-            <i class="bi bi-people display-5 text-primary"></i>
-            <h2 class="h5 mt-3 mb-1">Gamers</h2>
-            <p class="text-body-secondary small mb-0">{{ num_gamers }} player{{ num_gamers|pluralize }} on the site</p>
-          </div>
-        </a>
-      </div>
+    <div class="col">
+      <a class="card game-card h-100 text-decoration-none" href="{% url 'vault:collection-list' %}">
+        <div class="card-body text-center py-4">
+          <i class="bi bi-collection display-5 text-primary"></i>
+          <h2 class="h5 mt-3 mb-1">Collections</h2>
+          <p class="text-body-secondary small mb-0">{{ num_collections }} curated
+            list{{ num_collections|pluralize }}</p>
+        </div>
+      </a>
     </div>
+    <div class="col">
+      <a class="card game-card h-100 text-decoration-none" href="{% url 'vault:gamer-list' %}">
+        <div class="card-body text-center py-4">
+          <i class="bi bi-people display-5 text-primary"></i>
+          <h2 class="h5 mt-3 mb-1">Gamers</h2>
+          <p class="text-body-secondary small mb-0">{{ num_gamers }} player{{ num_gamers|pluralize }} on the site</p>
+        </div>
+      </a>
+    </div>
+  </div>
 
-    {% if user.is_staff or perms.vault.view_genre or perms.vault.view_platform or perms.vault.view_developer %}
-      <div class="d-flex flex-wrap align-items-center gap-2">
-        {% if perms.vault.view_genre or perms.vault.view_platform or perms.vault.view_developer %}
-          <span class="text-body-secondary me-1">Reference:</span>
-        {% endif %}
-        {% if perms.vault.view_genre %}
-          <a class="btn btn-outline-secondary btn-sm" href="{% url 'vault:genre-list' %}">
-            <i class="bi bi-tags"></i> Genres <span class="badge text-bg-secondary">{{ num_genres }}</span>
-          </a>
-        {% endif %}
-        {% if perms.vault.view_platform %}
-          <a class="btn btn-outline-secondary btn-sm" href="{% url 'vault:platform-list' %}">
-            <i class="bi bi-pc-display"></i> Platforms <span class="badge text-bg-secondary">{{ num_platforms }}</span>
-          </a>
-        {% endif %}
-        {% if perms.vault.view_developer %}
-          <a class="btn btn-outline-secondary btn-sm" href="{% url 'vault:developer-list' %}">
-            <i class="bi bi-building"></i> Developers <span class="badge text-bg-secondary">{{ num_developers }}</span>
-          </a>
-        {% endif %}
-        {% if user.is_staff %}
-          <a class="btn btn-outline-warning btn-sm ms-auto" href="{% url 'admin:index' %}">
-            <i class="bi bi-gear"></i> Admin panel
-          </a>
-        {% endif %}
-      </div>
-    {% endif %}
+  {% if user.is_staff or perms.vault.view_genre or perms.vault.view_platform or perms.vault.view_developer %}
+    <div class="d-flex flex-wrap align-items-center gap-2">
+      {% if perms.vault.view_genre or perms.vault.view_platform or perms.vault.view_developer %}
+        <span class="text-body-secondary me-1">Reference:</span>
+      {% endif %}
+      {% if perms.vault.view_genre %}
+        <a class="btn btn-outline-secondary btn-sm" href="{% url 'vault:genre-list' %}">
+          <i class="bi bi-tags"></i> Genres <span class="badge text-bg-secondary">{{ num_genres }}</span>
+        </a>
+      {% endif %}
+      {% if perms.vault.view_platform %}
+        <a class="btn btn-outline-secondary btn-sm" href="{% url 'vault:platform-list' %}">
+          <i class="bi bi-pc-display"></i> Platforms <span class="badge text-bg-secondary">{{ num_platforms }}</span>
+        </a>
+      {% endif %}
+      {% if perms.vault.view_developer %}
+        <a class="btn btn-outline-secondary btn-sm" href="{% url 'vault:developer-list' %}">
+          <i class="bi bi-building"></i> Developers <span class="badge text-bg-secondary">{{ num_developers }}</span>
+        </a>
+      {% endif %}
+      {% if user.is_staff %}
+        <a class="btn btn-outline-warning btn-sm ms-auto" href="{% url 'admin:index' %}">
+          <i class="bi bi-gear"></i> Admin panel
+        </a>
+      {% endif %}
+    </div>
   {% endif %}
 {% endblock %}
