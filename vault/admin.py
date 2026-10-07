@@ -23,7 +23,7 @@ from vault.roles import MODERATORS_GROUP, ensure_moderators_group
 
 EXTRA_FIELDS = (
     "Additional info",
-    {"fields": ("nickname", "bio", "favorite_genre")},
+    {"fields": ("nickname", "bio", "favorite_genre", "avatar", "avatar_url")},
 )
 
 admin.site.unregister(Group)

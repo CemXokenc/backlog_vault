@@ -143,8 +143,18 @@ class CollectionForm(forms.ModelForm):
 class GamerUpdateForm(forms.ModelForm):
     class Meta:
         model = Gamer
-        fields = ["nickname", "bio", "favorite_genre"]
+        fields = [
+            "nickname",
+            "bio",
+            "favorite_genre",
+            "avatar",
+            "avatar_url",
+        ]
         widgets = {"bio": forms.Textarea(attrs={"rows": 3})}
+        help_texts = {
+            "avatar": "Upload an image (up to 2 MB).",
+            "avatar_url": "Used when no image is uploaded.",
+        }
 
 
 class CommentForm(forms.ModelForm):

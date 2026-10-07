@@ -27,6 +27,14 @@ class Gamer(AbstractUser):
         blank=True,
         related_name="fans",
     )
+    avatar = models.ImageField(
+        upload_to="avatars/",
+        blank=True,
+        validators=[validate_image_size],
+    )
+    avatar_url = models.URLField(
+        blank=True,
+    )
 
     def __str__(self):
         if self.nickname:
@@ -35,6 +43,18 @@ class Gamer(AbstractUser):
 
     def get_absolute_url(self):
         return reverse("vault:gamer-detail", args=[self.pk])
+
+    @property
+    def avatar_source(self):
+        """Uploaded avatar if there is one, otherwise the avatar URL."""
+        if self.avatar:
+            return self.avatar.url
+        return self.avatar_url
+
+    @property
+    def avatar_initial(self):
+        """First letter of the nickname (or username) for the placeholder."""
+        return (self.nickname or self.username)[:1].upper()
 
 
 class Genre(models.Model):
