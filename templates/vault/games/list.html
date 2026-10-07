@@ -3,24 +3,36 @@
 {% block title %}Catalog{% endblock %}
 
 {% block content %}
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-0">Game catalog</h1>
-    {% if perms.vault.add_game %}
-      <a class="btn btn-primary" href="{% url 'vault:game-create' %}">
-        <i class="bi bi-plus-lg"></i> Add game
-      </a>
-    {% endif %}
-  </div>
-
-  <form method="get" class="row g-2 mb-4">
-    <div class="col-12 col-md-5">{{ search_form.query }}</div>
-    <div class="col-6 col-md-3">{{ search_form.genre }}</div>
-    <div class="col-6 col-md-2">{{ search_form.platform }}</div>
-    <div class="col-12 col-md-auto d-flex gap-2">
-      <button type="submit" class="btn btn-outline-primary">Search</button>
-      <a class="btn btn-outline-secondary" href="{% url 'vault:game-list' %}">Clear</a>
+  <header class="page-header">
+    <div class="page-header-main">
+      <span class="page-icon"><i class="bi bi-controller"></i></span>
+      <div>
+        <h1 class="page-title">Game catalog</h1>
+        <p class="page-subtitle">Search by title, genre or platform.</p>
+      </div>
     </div>
-  </form>
+    {% if perms.vault.add_game %}
+      <div class="page-actions">
+        <a class="btn btn-primary" href="{% url 'vault:game-create' %}">
+          <i class="bi bi-plus-lg"></i> Add game
+        </a>
+      </div>
+    {% endif %}
+  </header>
+
+  <div class="filter-bar">
+    <form method="get" class="row g-2">
+      <div class="col-12 col-md-5">{{ search_form.query }}</div>
+      <div class="col-6 col-md-3">{{ search_form.genre }}</div>
+      <div class="col-6 col-md-2">{{ search_form.platform }}</div>
+      <div class="col-12 col-md-auto d-flex gap-2">
+        <button type="submit" class="btn btn-outline-primary">
+          <i class="bi bi-search"></i> Search
+        </button>
+        <a class="btn btn-outline-secondary" href="{% url 'vault:game-list' %}">Clear</a>
+      </div>
+    </form>
+  </div>
 
   {% if game_list %}
     <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3">
@@ -29,7 +41,8 @@
       {% endfor %}
     </div>
   {% else %}
-    <p class="text-body-secondary">No games found.</p>
+    {% url 'vault:game-list' as catalog_url %}
+    {% include "includes/empty_state.html" with icon="search" title="No games found" text="Try a different title or clear the filters." url=catalog_url label="Clear filters" %}
   {% endif %}
 
   {% include "includes/pagination.html" %}

@@ -27,6 +27,7 @@ class CollectionListView(LoginRequiredMixin, SearchMixin, generic.ListView):
     template_name = "vault/collections/list.html"
     queryset = (
         Collection.objects.select_related("owner")
+        .prefetch_related("games")
         .annotate(num_games=Count("games"))
         .order_by("title")
     )
