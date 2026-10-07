@@ -280,3 +280,156 @@ h1, .h1, h2, .h2, h3, .h3, h4, .h4, h5, .h5 {
     padding: 1.75rem;
   }
 }
+
+/* ------------------------------------------------------------------ */
+/* Landing page for guests                                            */
+/* ------------------------------------------------------------------ */
+
+.landing-hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border: 1px solid var(--bs-border-color);
+  border-radius: 1.5rem;
+  padding: clamp(2.5rem, 7vw, 5.5rem) clamp(1.25rem, 4vw, 3.5rem);
+  background: rgba(var(--bs-tertiary-bg-rgb), 0.6);
+  box-shadow: var(--bv-card-shadow);
+}
+
+.landing-hero-content {
+  position: relative;
+  max-width: 40rem;
+}
+
+/* Tilted wall of game covers that slowly drifts sideways */
+.cover-wall {
+  position: absolute;
+  inset: -12% -6%;
+  z-index: -2;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1rem;
+  opacity: 0.5;
+  transform: rotate(-6deg) scale(1.1);
+}
+
+.cover-row {
+  display: flex;
+  gap: 1rem;
+  width: max-content;
+  animation: cover-scroll 80s linear infinite;
+}
+
+.cover-row-reverse {
+  animation-direction: reverse;
+}
+
+.cover-row img {
+  flex: none;
+  width: 220px;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  border-radius: 0.75rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.35);
+}
+
+/* Fade the wall out towards the text so it stays readable */
+.landing-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    90deg,
+    rgba(var(--bs-body-bg-rgb), 0.96) 0%,
+    rgba(var(--bs-body-bg-rgb), 0.82) 45%,
+    rgba(var(--bs-body-bg-rgb), 0.25) 100%
+  );
+}
+
+.landing-title {
+  background: linear-gradient(90deg, var(--bs-body-color) 10%, var(--bs-primary) 90%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.landing-stat {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--bs-primary);
+}
+
+.landing-feature {
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.landing-feature:hover {
+  transform: translateY(-4px);
+  border-color: rgba(124, 92, 255, 0.55);
+}
+
+.landing-feature-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  margin-bottom: 1rem;
+  border-radius: 1rem;
+  font-size: 1.6rem;
+  color: #fff;
+  background: linear-gradient(135deg, var(--bs-primary), #4dd0e1);
+}
+
+.landing-cta {
+  padding: 3rem 1.5rem;
+  border: 1px solid var(--bs-border-color);
+  border-radius: 1.5rem;
+  background:
+    radial-gradient(600px 220px at 50% 0%, var(--bv-glow-1), transparent 70%),
+    rgba(var(--bs-tertiary-bg-rgb), 0.6);
+}
+
+.fade-up {
+  opacity: 0;
+  transform: translateY(14px);
+  animation: fade-up 0.7s ease forwards;
+}
+
+.fade-up.delay-1 { animation-delay: 0.1s; }
+.fade-up.delay-2 { animation-delay: 0.22s; }
+.fade-up.delay-3 { animation-delay: 0.34s; }
+
+@keyframes fade-up {
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes cover-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@media (max-width: 767.98px) {
+  .landing-hero::after {
+    background: rgba(var(--bs-body-bg-rgb), 0.82);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cover-row {
+    animation: none;
+  }
+
+  .fade-up {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+}
