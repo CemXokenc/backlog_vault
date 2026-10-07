@@ -1,0 +1,49 @@
+<div class="col">
+  <div class="card game-card h-100">
+    <div class="cover">
+      {% if game.cover_source %}
+        <img src="{{ game.cover_source }}" alt="{{ game.title }}" loading="lazy">
+      {% else %}
+        <i class="bi bi-image"></i>
+      {% endif %}
+    </div>
+
+    <div class="card-body">
+      <h2 class="h6 card-title mb-1 stretched-link-title">
+        <a class="stretched-link" href="{% url 'vault:game-detail' game.pk %}">{{ game.title }}</a>
+      </h2>
+      <p class="small text-body-secondary mb-2">
+        {{ game.release_year }} &middot; {{ game.developer.name|default:"Unknown developer" }}
+      </p>
+      <div>
+        {% for genre in game.genres.all|slice:":3" %}
+          <span class="badge text-bg-primary">{{ genre.name }}</span>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="card-footer d-flex justify-content-between small">
+      <span>
+        {% if game.avg_rating %}
+          <i class="bi bi-star-fill text-warning"></i> {{ game.avg_rating|floatformat:1 }}
+        {% else %}
+          <span class="text-body-secondary">no ratings yet</span>
+        {% endif %}
+      </span>
+      <span class="text-body-secondary">
+        {{ game.num_players }} player{{ game.num_players|pluralize }}
+      </span>
+    </div>
+
+    {% if remove_action %}
+      <div class="card-footer border-top-0 pt-0 position-relative" style="z-index: 2;">
+        <form method="post" action="{{ remove_action }}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-sm btn-outline-danger w-100">
+            <i class="bi bi-x-lg"></i> Remove from collection
+          </button>
+        </form>
+      </div>
+    {% endif %}
+  </div>
+</div>

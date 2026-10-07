@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}My library{% endblock %}
+
+{% block content %}
+  <header class="page-header">
+    <div class="page-header-main">
+      <span class="page-icon"><i class="bi bi-journal-check"></i></span>
+      <div>
+        <h1 class="page-title">My library</h1>
+        <p class="page-subtitle">Your backlog, progress and ratings.</p>
+      </div>
+    </div>
+    <div class="page-actions">
+      <a class="btn btn-primary" href="{% url 'vault:game-list' %}">
+        <i class="bi bi-controller"></i> Browse catalog
+      </a>
+    </div>
+  </header>
+
+  <ul class="nav nav-pills">
+    {% for tab in tabs %}
+      <li class="nav-item">
+        <a class="nav-link {% if tab.status == current_status %}active{% endif %}"
+           href="?status={{ tab.status }}">
+          {{ tab.label }} <span class="badge text-bg-secondary ms-1">{{ tab.count }}</span>
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+
+  {% if entries %}
+    <div class="table-card">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead>
+            <tr>
+              <th>Game</th>
+              <th>Status</th>
+              <th class="text-center">Rating</th>
+              <th class="text-center">Hours</th>
+              <th>Platform</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for entry in entries %}
+              <tr>
+                <td>
+                  <a class="d-flex align-items-center gap-3 text-decoration-none"
+                     href="{% url 'vault:game-detail' entry.game.pk %}">
+                    {% if entry.game.cover_source %}
+                      <img class="game-thumb" src="{{ entry.game.cover_source }}" alt="" loading="lazy">
+                    {% else %}
+                      <span class="game-thumb game-thumb-empty"><i class="bi bi-image"></i></span>
+                    {% endif %}
+                    <span class="fw-semibold">{{ entry.game.title }}</span>
+                  </a>
+                </td>
+                <td>
+                  {% include "includes/status_badge.html" with status=entry.status label=entry.get_status_display %}
+                </td>
+                <td class="text-center">{{ entry.rating|default:"–" }}</td>
+                <td class="text-center">{{ entry.hours_played }}</td>
+                <td>{{ entry.platform|default:"–" }}</td>
+                <td class="text-end text-nowrap">
+                  <a class="btn btn-sm btn-outline-secondary"
+                     href="{% url 'vault:library-update' entry.pk %}?next={{ request.get_full_path|urlencode }}" title="Edit">
+                    <i class="bi bi-pencil"></i>
+                  </a>
+                  <a class="btn btn-sm btn-outline-danger"
+                     href="{% url 'vault:library-delete' entry.pk %}?next={{ request.get_full_path|urlencode }}" title="Remove">
+                    <i class="bi bi-trash"></i>
+                  </a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  {% else %}
+    {% url 'vault:game-list' as catalog_url %}
+    {% include "includes/empty_state.html" with icon="journal-plus" title="Nothing here yet" text="Open a game in the catalog and add it to your library." url=catalog_url label="Browse catalog" %}
+  {% endif %}
+
+  {% include "includes/pagination.html" %}
+{% endblock %}

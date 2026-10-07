@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}Collections{% endblock %}
+
+{% block content %}
+  <header class="page-header">
+    <div class="page-header-main">
+      <span class="page-icon"><i class="bi bi-collection"></i></span>
+      <div>
+        <h1 class="page-title">Collections</h1>
+        <p class="page-subtitle">Hand-picked lists of games from all gamers.</p>
+      </div>
+    </div>
+    <div class="page-actions">
+      <a class="btn btn-primary" href="{% url 'vault:collection-create' %}">
+        <i class="bi bi-plus-lg"></i> New collection
+      </a>
+    </div>
+  </header>
+
+  <ul class="nav nav-pills">
+    <li class="nav-item">
+      <a class="nav-link {% if not mine %}active{% endif %}" href="?">All</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link {% if mine %}active{% endif %}" href="?mine=1">Mine</a>
+    </li>
+  </ul>
+
+  <div class="filter-bar">
+    <form method="get" class="row g-2">
+      {% if mine %}<input type="hidden" name="mine" value="1">{% endif %}
+      <div class="col-sm-8 col-md-6">{{ search_form.query }}</div>
+      <div class="col-auto">
+        <button type="submit" class="btn btn-outline-primary">
+          <i class="bi bi-search"></i> Search
+        </button>
+      </div>
+    </form>
+  </div>
+
+  {% if collection_list %}
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+      {% for collection in collection_list %}
+        <div class="col">
+          <div class="card game-card h-100">
+            {% with covered=collection.games.all|slice:":4" %}
+              {% if covered %}
+                <div class="collection-mosaic">
+                  {% for game in covered %}
+                    {% if game.cover_source %}
+                      <img src="{{ game.cover_source }}" alt="" loading="lazy">
+                    {% else %}
+                      <div class="tile-empty"><i class="bi bi-image"></i></div>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              {% else %}
+                <div class="collection-mosaic">
+                  <div class="collection-mosaic-empty"><i class="bi bi-collection"></i></div>
+                </div>
+              {% endif %}
+            {% endwith %}
+            <div class="card-body">
+              <h2 class="h5 card-title mb-1">{{ collection.title }}</h2>
+              <p class="small text-body-secondary mb-2">
+                by {{ collection.owner.nickname|default:collection.owner.username }}
+                {% if collection.owner_id == user.pk %}
+                  <span class="badge text-bg-primary ms-1">Yours</span>
+                {% endif %}
+              </p>
+              {% if collection.description %}
+                <p class="card-text small">{{ collection.description|truncatechars:90 }}</p>
+              {% endif %}
+            </div>
+            <div class="card-footer small text-body-secondary">
+              <i class="bi bi-controller"></i>
+              {{ collection.num_games }} game{{ collection.num_games|pluralize }}
+            </div>
+            <a class="stretched-link" href="{% url 'vault:collection-detail' collection.pk %}"
+               aria-label="Open {{ collection.title }}"></a>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    {% url 'vault:collection-create' as create_url %}
+    {% include "includes/empty_state.html" with icon="collection" title="No collections found" text="Create the first one and fill it with your favourite games." url=create_url label="New collection" %}
+  {% endif %}
+
+  {% include "includes/pagination.html" %}
+{% endblock %}

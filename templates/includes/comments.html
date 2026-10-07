@@ -1,0 +1,104 @@
+<section class="mt-5" id="comments">
+  <h2 class="h4 mb-3 d-flex align-items-center gap-2">
+    <i class="bi bi-chat-left-text"></i>
+    Comments
+    <span class="badge rounded-pill text-bg-secondary fs-6">{{ comments|length }}</span>
+  </h2>
+
+  {% if user.is_authenticated %}
+    <div class="card shadow-sm mb-4">
+      <div class="card-body">
+        <form method="post" action="{{ post_url }}">
+          {% csrf_token %}
+          <div class="d-flex gap-3">
+            <span class="d-none d-sm-inline">{% include "includes/avatar.html" with gamer=user %}</span>
+            <div class="flex-grow-1">
+              <label for="{{ comment_form.text.id_for_label }}" class="visually-hidden">Your comment</label>
+              {{ comment_form.text }}
+              <div class="d-flex justify-content-between align-items-center mt-2">
+                <small class="text-body-secondary">
+                  <span id="comment-counter">0</span> / 1000
+                </small>
+                <button type="submit" class="btn btn-primary btn-sm">
+                  <i class="bi bi-send me-1"></i>Post comment
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+    <script>
+      (function () {
+        const field = document.getElementById("{{ comment_form.text.id_for_label }}");
+        const counter = document.getElementById("comment-counter");
+        if (!field || !counter) return;
+        const update = () => { counter.textContent = field.value.length; };
+        field.addEventListener("input", update);
+        update();
+      })();
+    </script>
+  {% else %}
+    <div class="alert alert-secondary d-flex align-items-center gap-2" role="alert">
+      <i class="bi bi-lock"></i>
+      <div>
+        <a class="alert-link" href="{% url 'login' %}?next={{ request.path|urlencode }}">Log in</a>
+        or <a class="alert-link" href="{% url 'vault:register' %}">register</a>
+        to leave a comment.
+      </div>
+    </div>
+  {% endif %}
+
+  <div class="vstack gap-3">
+    {% for comment in comments %}
+      <article class="card border-0 bg-body-tertiary" id="comment-{{ comment.pk }}">
+        <div class="card-body">
+          <div class="d-flex gap-3">
+            {% include "includes/avatar.html" with gamer=comment.author %}
+            <div class="flex-grow-1">
+              <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                  {% if user.is_authenticated %}
+                    <a class="fw-semibold text-decoration-none"
+                       href="{% url 'vault:gamer-detail' comment.author.pk %}">{{ comment.author.nickname|default:comment.author.username }}</a>
+                  {% else %}
+                    <span class="fw-semibold">{{ comment.author.nickname|default:comment.author.username }}</span>
+                  {% endif %}
+                  {% if user == comment.author %}
+                    <span class="badge text-bg-primary">You</span>
+                  {% endif %}
+                  {% if comment.author.is_superuser %}
+                    <span class="badge text-bg-danger">Admin</span>
+                  {% elif comment.author.is_staff %}
+                    <span class="badge text-bg-warning">Moderator</span>
+                  {% endif %}
+                  <time class="small text-body-secondary"
+                        datetime="{{ comment.created_at|date:'c' }}"
+                        title="{{ comment.created_at|date:'d M Y, H:i' }}">
+                    {{ comment.created_at|timesince }} ago
+                  </time>
+                </div>
+                {% if user == comment.author or perms.vault.delete_comment %}
+                  <form method="post" action="{% url 'vault:comment-delete' comment.pk %}"
+                        onsubmit="return confirm('Delete this comment?');">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.path }}">
+                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete comment">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </form>
+                {% endif %}
+              </div>
+              <p class="mb-0 mt-2" style="overflow-wrap: anywhere;">{{ comment.text|linebreaksbr }}</p>
+            </div>
+          </div>
+        </div>
+      </article>
+    {% empty %}
+      <div class="text-center text-body-secondary py-4">
+        <i class="bi bi-chat-square-dots fs-2 d-block mb-2"></i>
+        No comments yet. Be the first to share your thoughts!
+      </div>
+    {% endfor %}
+  </div>
+</section>

@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}{{ collection.title }}{% endblock %}
+
+{% block content %}
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'vault:collection-list' %}">Collections</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{ collection.title }}</li>
+    </ol>
+  </nav>
+
+  <header class="page-header">
+    <div class="page-header-main">
+      <span class="page-icon"><i class="bi bi-collection"></i></span>
+      <div>
+        <h1 class="page-title">{{ collection.title }}</h1>
+        <p class="page-subtitle">
+          by {{ collection.owner.nickname|default:collection.owner.username }}
+          &middot; {{ games|length }} game{{ games|length|pluralize }}
+        </p>
+        {% if collection.description %}
+          <p class="mt-2 mb-0">{{ collection.description }}</p>
+        {% endif %}
+      </div>
+    </div>
+    {% if is_owner %}
+      <div class="page-actions">
+        <a class="btn btn-outline-secondary" href="{% url 'vault:collection-update' collection.pk %}"
+           title="Edit">
+          <i class="bi bi-pencil"></i> Edit
+        </a>
+        <a class="btn btn-outline-danger" href="{% url 'vault:collection-delete' collection.pk %}"
+           title="Delete">
+          <i class="bi bi-trash"></i> Delete
+        </a>
+      </div>
+    {% endif %}
+  </header>
+
+  {% if is_owner %}
+    <div class="filter-bar">
+      <form method="post" action="{% url 'vault:collection-add-game' collection.pk %}" class="row g-2">
+        {% csrf_token %}
+        <div class="col-sm-8 col-md-6">
+          <select name="game" class="form-select" required>
+            <option value="">Add a game to this collection...</option>
+            {% for available in available_games %}
+              <option value="{{ available.pk }}">{{ available.title }} ({{ available.release_year }})</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-auto">
+          <button type="submit" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Add</button>
+        </div>
+      </form>
+    </div>
+  {% endif %}
+
+  {% if games %}
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3">
+      {% for game in games %}
+        {% if is_owner %}
+          {% url 'vault:collection-remove-game' collection.pk game.pk as remove_url %}
+        {% endif %}
+        {% include "includes/game_card.html" with remove_action=remove_url %}
+      {% endfor %}
+    </div>
+  {% else %}
+    {% include "includes/empty_state.html" with icon="collection" title="This collection is empty" text="Add the first game to get started." %}
+  {% endif %}
+  {% url 'vault:collection-comment-add' collection.pk as post_url %}
+  {% include "includes/comments.html" with post_url=post_url %}
+{% endblock %}

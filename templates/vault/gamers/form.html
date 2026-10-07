@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% load crispy_forms_filters %}
+
+{% block title %}Edit profile{% endblock %}
+
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-lg-10 col-xl-9">
+      <div class="card shadow-sm">
+        <div class="card-body p-4 p-lg-5">
+          <div class="form-header">
+            <span class="page-icon"><i class="bi bi-person-gear"></i></span>
+            <div>
+              <h1>Edit profile</h1>
+              <p>@{{ object.username }}</p>
+            </div>
+          </div>
+
+          <form method="post" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+              <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            <div class="row g-4">
+              <div class="col-md-4 text-center">
+                <div class="avatar-preview" id="avatar-preview"
+                     data-initial="{{ object.avatar_source|default:'' }}"
+                     data-has-upload="{% if object.avatar %}1{% endif %}">
+                  <span class="avatar-preview-letter">{{ object.avatar_initial }}</span>
+                  <img src="" alt="Avatar preview" class="d-none">
+                </div>
+                <div class="text-start">{{ form.avatar|as_crispy_field }}</div>
+              </div>
+              <div class="col-md-8">
+                {{ form.nickname|as_crispy_field }}
+                {{ form.favorite_genre|as_crispy_field }}
+                {{ form.bio|as_crispy_field }}
+                {{ form.avatar_url|as_crispy_field }}
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">Save</button>
+              <a class="btn btn-outline-secondary" href="{% url 'vault:gamer-detail' object.pk %}">Cancel</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+  <script>
+    (function () {
+      const box = document.getElementById("avatar-preview");
+      const img = box.querySelector("img");
+      const fileInput = document.getElementById("id_avatar");
+      const urlInput = document.getElementById("id_avatar_url");
+      const initial = box.dataset.initial;
+      const hasUpload = box.dataset.hasUpload === "1";
+      let objectUrl = null;
+
+      function show(src) {
+        if (src) {
+          img.src = src;
+          img.classList.remove("d-none");
+        } else {
+          img.classList.add("d-none");
+        }
+      }
+
+      function refresh() {
+        // Same priority as the site: uploaded file first, then the URL.
+        if (objectUrl) {
+          show(objectUrl);
+        } else if (hasUpload) {
+          show(initial);
+        } else {
+          show(urlInput && urlInput.value.trim());
+        }
+      }
+
+      img.addEventListener("error", function () { show(""); });
+
+      if (fileInput) {
+        fileInput.addEventListener("change", function () {
+          if (objectUrl) { URL.revokeObjectURL(objectUrl); objectUrl = null; }
+          if (fileInput.files && fileInput.files[0]) {
+            objectUrl = URL.createObjectURL(fileInput.files[0]);
+          }
+          refresh();
+        });
+      }
+      if (urlInput) { urlInput.addEventListener("input", refresh); }
+
+      show(initial);
+    })();
+  </script>
+{% endblock %}

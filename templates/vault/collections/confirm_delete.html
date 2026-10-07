@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Delete collection{% endblock %}
+
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-5">
+      <div class="card shadow-sm border-danger">
+        <div class="card-body p-4">
+          <div class="form-header">
+            <span class="page-icon page-icon-danger"><i class="bi bi-exclamation-triangle"></i></span>
+            <div>
+              <h1>Delete collection</h1>
+            </div>
+          </div>
+          <p>Are you sure you want to delete <strong>{{ object.title }}</strong>?</p>
+          <p class="text-body-secondary small">
+            The collection will be removed, but its {{ object.games.count }} game{{ object.games.count|pluralize }}
+            stay in the catalog and in everyone's libraries.
+          </p>
+          <form method="post">
+            {% csrf_token %}
+            <div class="form-actions">
+              <button type="submit" class="btn btn-danger">Yes, delete</button>
+              <a class="btn btn-outline-secondary" href="{% url 'vault:collection-detail' object.pk %}">Cancel</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
