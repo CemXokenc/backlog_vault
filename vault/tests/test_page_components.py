@@ -91,7 +91,7 @@ class LibraryAndProfileTests(TestCase):
 
     def test_gamer_cards_show_an_initial_avatar(self):
         response = self.client.get(reverse("vault:gamer-list"))
-        self.assertContains(response, '<span class="avatar">z</span>')
+        self.assertContains(response, '<span class="avatar">Z</span>')
 
     def test_profile_has_a_hero_with_actions_for_the_owner(self):
         url = reverse("vault:gamer-detail", args=[self.gamer.pk])
