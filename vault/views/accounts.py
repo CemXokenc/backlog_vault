@@ -7,7 +7,6 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.encoding import force_str
 from django.utils.http import urlsafe_base64_decode
 from django.views import generic
-from django.views.decorators.http import require_POST
 
 from vault.emails import send_activation_email
 from vault.forms import GamerCreationForm
@@ -32,19 +31,21 @@ class ActivationSentView(generic.TemplateView):
     template_name = "registration/activation_sent.html"
 
 
-@require_POST
-def demo_login(request, role):
+class DemoLoginView(generic.View):
     """Sign in as one of the demo users (only when DEMO_MODE is on)."""
-    username = DEMO_USERS.get(role)
-    if not settings.DEMO_MODE or username is None:
-        raise Http404("Demo login is not available")
-    gamer = get_object_or_404(Gamer, username=username)
-    login(request, gamer, backend=settings.AUTHENTICATION_BACKENDS[0])
-    messages.info(
-        request,
-        f"You are signed in as {gamer.username} (demo {role}).",
-    )
-    return redirect("vault:index")
+
+    def post(self, request, role):
+        username = DEMO_USERS.get(role)
+        if not settings.DEMO_MODE or username is None:
+            raise Http404("Demo login is not available")
+        gamer = get_object_or_404(Gamer, username=username)
+        login(request, gamer, backend=settings.AUTHENTICATION_BACKENDS[0])
+        messages.info(
+            request,
+            f"You are signed in as {gamer.username} (demo {role}).",
+        )
+
+        return redirect("vault:index")
 
 
 def get_gamer_from_uid(uidb64):
@@ -55,18 +56,23 @@ def get_gamer_from_uid(uidb64):
         return None
 
 
-def activate(request, uidb64, token):
+class ActivateView(generic.View):
     """Activate the account from the emailed link and sign the gamer in."""
-    gamer = get_gamer_from_uid(uidb64)
-    if gamer is None or not default_token_generator.check_token(gamer, token):
-        return render(
-            request, "registration/activation_invalid.html", status=400
+
+    def get(self, request, uidb64, token):
+        gamer = get_gamer_from_uid(uidb64)
+        if gamer is None or not default_token_generator.check_token(
+            gamer, token
+        ):
+            return render(
+                request, "registration/activation_invalid.html", status=400
+            )
+        if not gamer.is_active:
+            gamer.is_active = True
+            gamer.save(update_fields=["is_active"])
+        login(request, gamer, backend=settings.AUTHENTICATION_BACKENDS[0])
+        messages.success(
+            request, "Your account is active. Welcome to Backlog Vault!"
         )
-    if not gamer.is_active:
-        gamer.is_active = True
-        gamer.save(update_fields=["is_active"])
-    login(request, gamer, backend=settings.AUTHENTICATION_BACKENDS[0])
-    messages.success(
-        request, "Your account is active. Welcome to Backlog Vault!"
-    )
-    return redirect("vault:index")
+
+        return redirect("vault:index")

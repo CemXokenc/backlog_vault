@@ -1,5 +1,6 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Avg, Count, F, Q
-from django.shortcuts import render
+from django.views import generic
 
 from vault.models import (
     Collection,
@@ -35,27 +36,35 @@ def get_cover_wall():
     return [row + row for row in rows]
 
 
-def landing(request):
+class LandingView(generic.TemplateView):
     """Home page for guests: what the site is and a taste of the catalog."""
-    featured_games = (
-        Game.objects.with_stats()
-        .select_related("developer")
-        .prefetch_related("genres")
-        .order_by(
-            "-num_players",
-            F("avg_rating").desc(nulls_last=True),
-            "title",
-        )[:6]
-    )
-    context = {
-        "num_games": Game.objects.count(),
-        "num_developers": Developer.objects.count(),
-        "num_genres": Genre.objects.count(),
-        "num_platforms": Platform.objects.count(),
-        "cover_wall": get_cover_wall(),
-        "featured_games": featured_games,
-    }
-    return render(request, "vault/home_guest.html", context=context)
+
+    template_name = "vault/home_guest.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        featured_games = (
+            Game.objects.with_stats()
+            .select_related("developer")
+            .prefetch_related("genres")
+            .order_by(
+                "-num_players",
+                F("avg_rating").desc(nulls_last=True),
+                "title",
+            )[:6]
+        )
+        context.update(
+            {
+                "num_games": Game.objects.count(),
+                "num_developers": Developer.objects.count(),
+                "num_genres": Genre.objects.count(),
+                "num_platforms": Platform.objects.count(),
+                "cover_wall": get_cover_wall(),
+                "featured_games": featured_games,
+            }
+        )
+
+        return context
 
 
 DASHBOARD_CARDS = 4
@@ -94,47 +103,69 @@ def get_suggestions(user):
     return suggestions, favorite_count
 
 
-def dashboard(request):
+class DashboardView(LoginRequiredMixin, generic.TemplateView):
     """Home page of a signed-in gamer."""
-    user = request.user
-    num_visits = request.session.get("num_visits", 0) + 1
-    request.session["num_visits"] = num_visits
 
-    entries = LibraryEntry.objects.filter(gamer=user).select_related("game")
-    my_library = entries.aggregate(
-        total=Count("id"),
-        playing=Count("id", filter=Q(status=LibraryEntry.Status.PLAYING)),
-        completed=Count("id", filter=Q(status=LibraryEntry.Status.COMPLETED)),
-        avg_rating=Avg("rating"),
-    )
-    playing = entries.filter(status=LibraryEntry.Status.PLAYING)
-    planned = entries.filter(status=LibraryEntry.Status.PLANNED)
-    suggestions, favorite_count = get_suggestions(user)
+    template_name = "vault/home.html"
 
-    context = {
-        "num_visits": num_visits,
-        "num_games": Game.objects.count(),
-        "num_genres": Genre.objects.count(),
-        "num_platforms": Platform.objects.count(),
-        "num_developers": Developer.objects.count(),
-        "num_collections": Collection.objects.count(),
-        "num_gamers": Gamer.objects.count(),
-        "my_library": my_library,
-        "cover_wall": get_cover_wall(),
-        "playing_entries": playing.order_by("-pk")[:DASHBOARD_CARDS],
-        "planned_entries": planned.order_by("-pk")[:DASHBOARD_CARDS],
-        "suggestions": suggestions,
-        "suggestions_by_genre": favorite_count > 0,
-        "latest_comments": Comment.objects.select_related(
-            "author",
+    def get(self, request, *args, **kwargs):
+        self.num_visits = request.session.get("num_visits", 0) + 1
+        request.session["num_visits"] = self.num_visits
+
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        entries = LibraryEntry.objects.filter(gamer=user).select_related(
             "game",
-            "collection",
-        )[:LATEST_COMMENTS],
-    }
-    return render(request, "vault/home.html", context=context)
+        )
+        my_library = entries.aggregate(
+            total=Count("id"),
+            playing=Count("id", filter=Q(status=LibraryEntry.Status.PLAYING)),
+            completed=Count(
+                "id",
+                filter=Q(status=LibraryEntry.Status.COMPLETED),
+            ),
+            avg_rating=Avg("rating"),
+        )
+        playing = entries.filter(status=LibraryEntry.Status.PLAYING)
+        planned = entries.filter(status=LibraryEntry.Status.PLANNED)
+        suggestions, favorite_count = get_suggestions(user)
+
+        context.update(
+            {
+                "num_visits": self.num_visits,
+                "num_games": Game.objects.count(),
+                "num_genres": Genre.objects.count(),
+                "num_platforms": Platform.objects.count(),
+                "num_developers": Developer.objects.count(),
+                "num_collections": Collection.objects.count(),
+                "num_gamers": Gamer.objects.count(),
+                "my_library": my_library,
+                "cover_wall": get_cover_wall(),
+                "playing_entries": playing.order_by("-pk")[:DASHBOARD_CARDS],
+                "planned_entries": planned.order_by("-pk")[:DASHBOARD_CARDS],
+                "suggestions": suggestions,
+                "suggestions_by_genre": favorite_count > 0,
+                "latest_comments": Comment.objects.select_related(
+                    "author",
+                    "game",
+                    "collection",
+                )[:LATEST_COMMENTS],
+            }
+        )
+
+        return context
 
 
-def index(request):
-    if request.user.is_authenticated:
-        return dashboard(request)
-    return landing(request)
+class IndexView(generic.View):
+    """Dashboard for signed-in gamers, landing page for guests."""
+
+    def get(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            view = DashboardView.as_view()
+        else:
+            view = LandingView.as_view()
+
+        return view(request, *args, **kwargs)

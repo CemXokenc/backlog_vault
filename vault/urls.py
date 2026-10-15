@@ -12,7 +12,7 @@ from vault.views import (
 )
 
 urlpatterns = [
-    path("", home.index, name="index"),
+    path("", home.IndexView.as_view(), name="index"),
     path("register/", accounts.RegisterView.as_view(), name="register"),
     path(
         "register/done/",
@@ -21,12 +21,12 @@ urlpatterns = [
     ),
     path(
         "activate/<uidb64>/<token>/",
-        accounts.activate,
+        accounts.ActivateView.as_view(),
         name="activate",
     ),
     path(
         "demo-login/<str:role>/",
-        accounts.demo_login,
+        accounts.DemoLoginView.as_view(),
         name="demo-login",
     ),
     # Reference data
@@ -161,12 +161,12 @@ urlpatterns = [
     ),
     path(
         "collections/<int:pk>/games/add/",
-        collections.collection_add_game,
+        collections.CollectionAddGameView.as_view(),
         name="collection-add-game",
     ),
     path(
         "collections/<int:pk>/games/<int:game_pk>/remove/",
-        collections.collection_remove_game,
+        collections.CollectionRemoveGameView.as_view(),
         name="collection-remove-game",
     ),
     # Gamers
@@ -183,17 +183,17 @@ urlpatterns = [
     ),
     path(
         "games/<int:pk>/comments/add/",
-        comments.game_comment_add,
+        comments.GameCommentAddView.as_view(),
         name="game-comment-add",
     ),
     path(
         "collections/<int:pk>/comments/add/",
-        comments.collection_comment_add,
+        comments.CollectionCommentAddView.as_view(),
         name="collection-comment-add",
     ),
     path(
         "comments/<int:pk>/delete/",
-        comments.comment_delete,
+        comments.CommentDeleteView.as_view(),
         name="comment-delete",
     ),
 ]

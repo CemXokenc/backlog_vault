@@ -1,5 +1,4 @@
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Count
@@ -7,7 +6,7 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views import generic
-from django.views.decorators.http import require_POST
+from django.views.generic.detail import SingleObjectMixin
 
 from vault.forms import (
     CollectionForm,
@@ -117,40 +116,46 @@ class CollectionDeleteView(
         return Collection.objects.filter(owner=self.request.user)
 
 
-def redirect_back(request, fallback):
-    return redirect(get_safe_next_url(request) or fallback)
+class CollectionGameView(LoginRequiredMixin, SingleObjectMixin, generic.View):
+    """Base of the POST-only views that add or remove a collection game."""
+
+    def get_queryset(self):
+        return Collection.objects.filter(owner=self.request.user)
+
+    def redirect_back(self, collection):
+        return redirect(get_safe_next_url(self.request) or collection)
 
 
-@login_required
-@require_POST
-def collection_add_game(request, pk):
-    collection = get_object_or_404(Collection, pk=pk, owner=request.user)
-    game_pk = request.POST.get("game", "")
-    if not game_pk.isdigit():
-        raise Http404("Game not found")
-    game = get_object_or_404(Game, pk=game_pk)
-    if collection.games.filter(pk=game.pk).exists():
-        messages.info(
-            request,
-            f"{game.title} is already in {collection.title}.",
-        )
-    else:
-        collection.games.add(game)
+class CollectionAddGameView(CollectionGameView):
+    def post(self, request, *args, **kwargs):
+        collection = self.get_object()
+        game_pk = request.POST.get("game", "")
+        if not game_pk.isdigit():
+            raise Http404("Game not found")
+        game = get_object_or_404(Game, pk=game_pk)
+        if collection.games.filter(pk=game.pk).exists():
+            messages.info(
+                request,
+                f"{game.title} is already in {collection.title}.",
+            )
+        else:
+            collection.games.add(game)
+            messages.success(
+                request,
+                f"{game.title} was added to {collection.title}.",
+            )
+
+        return self.redirect_back(collection)
+
+
+class CollectionRemoveGameView(CollectionGameView):
+    def post(self, request, *args, **kwargs):
+        collection = self.get_object()
+        game = get_object_or_404(Game, pk=kwargs["game_pk"])
+        collection.games.remove(game)
         messages.success(
             request,
-            f"{game.title} was added to {collection.title}.",
+            f"{game.title} was removed from {collection.title}.",
         )
-    return redirect_back(request, collection)
 
-
-@login_required
-@require_POST
-def collection_remove_game(request, pk, game_pk):
-    collection = get_object_or_404(Collection, pk=pk, owner=request.user)
-    game = get_object_or_404(Game, pk=game_pk)
-    collection.games.remove(game)
-    messages.success(
-        request,
-        f"{game.title} was removed from {collection.title}.",
-    )
-    return redirect_back(request, collection)
+        return self.redirect_back(collection)
