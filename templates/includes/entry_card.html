@@ -1,0 +1,25 @@
+<div class="col">
+  <div class="card game-card h-100">
+    <div class="cover">
+      {% if entry.game.cover_source %}
+        <img src="{{ entry.game.cover_source }}" alt="{{ entry.game.title }}" loading="lazy">
+      {% else %}
+        <i class="bi bi-image"></i>
+      {% endif %}
+    </div>
+    <div class="card-body">
+      <h3 class="h6 card-title mb-2 stretched-link-title">
+        <a class="stretched-link" href="{% url 'vault:game-detail' entry.game.pk %}">{{ entry.game.title }}</a>
+      </h3>
+      <div class="d-flex align-items-center gap-2 flex-wrap">
+        {% include "includes/status_badge.html" with status=entry.status label=entry.get_status_display %}
+        {% if entry.hours_played %}
+          <span class="small text-body-secondary"><i class="bi bi-clock"></i> {{ entry.hours_played }} h</span>
+        {% endif %}
+        {% if entry.rating %}
+          <span class="small"><i class="bi bi-star-fill text-warning"></i> {{ entry.rating }}</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>

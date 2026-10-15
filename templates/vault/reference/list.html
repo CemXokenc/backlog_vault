@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}{{ ref.title_plural }}{% endblock %}
+
+{% block content %}
+  <header class="page-header">
+    <div class="page-header-main">
+      <span class="page-icon"><i class="bi bi-tags"></i></span>
+      <div>
+        <h1 class="page-title">{{ ref.title_plural }}</h1>
+        <p class="page-subtitle">Reference data used by the game catalog.</p>
+      </div>
+    </div>
+    {% if ref.can_add %}
+      <div class="page-actions">
+        <a class="btn btn-primary" href="{{ ref.create_url }}">
+          <i class="bi bi-plus-lg"></i> Add {{ ref.title|lower }}
+        </a>
+      </div>
+    {% endif %}
+  </header>
+
+  <div class="filter-bar">
+    <form method="get" class="row g-2">
+      <div class="col-sm-8 col-md-6">{{ search_form.query }}</div>
+      <div class="col-auto">
+        <button type="submit" class="btn btn-outline-primary">
+          <i class="bi bi-search"></i> Search
+        </button>
+      </div>
+    </form>
+  </div>
+
+  {% if object_list %}
+    <div class="table-card">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead>
+            <tr>
+              <th>Name</th>
+              {% if ref.show_country %}<th class="text-center">Country</th>{% endif %}
+              <th class="text-center">Games</th>
+              {% if ref.can_change or ref.can_delete %}<th class="text-end">Actions</th>{% endif %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in object_list %}
+              <tr>
+                <td class="fw-semibold">{{ item.name }}</td>
+                {% if ref.show_country %}<td class="text-center">{{ item.country }}</td>{% endif %}
+                <td class="text-center"><span class="badge text-bg-secondary">{{ item.num_games }}</span></td>
+                {% if ref.can_change or ref.can_delete %}
+                  <td class="text-end">
+                    {% if ref.can_change %}
+                      <a class="btn btn-sm btn-outline-secondary"
+                         href="{% url ref.update_name item.pk %}" title="Edit">
+                        <i class="bi bi-pencil"></i>
+                      </a>
+                    {% endif %}
+                    {% if ref.can_delete %}
+                      <a class="btn btn-sm btn-outline-danger"
+                         href="{% url ref.delete_name item.pk %}" title="Delete">
+                        <i class="bi bi-trash"></i>
+                      </a>
+                    {% endif %}
+                  </td>
+                {% endif %}
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  {% else %}
+    {% include "includes/empty_state.html" with icon="tags" title="Nothing found" text="Try a different name." %}
+  {% endif %}
+
+  {% include "includes/pagination.html" %}
+{% endblock %}

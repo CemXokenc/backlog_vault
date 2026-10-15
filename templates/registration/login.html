@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load crispy_forms_filters %}
+{% load crispy_forms_tags %}
+
+{% block title %}Log in{% endblock %}
+
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+      <div class="card shadow-sm">
+        <div class="card-body p-4">
+          <div class="auth-icon"><i class="bi bi-box-arrow-in-right"></i></div>
+          <h1 class="h4 mb-1 text-center">Welcome back</h1>
+          <p class="text-body-secondary text-center mb-4">Log in to continue to your library.</p>
+          <form method="post" novalidate>
+            {% csrf_token %}
+            {{ form|crispy }}
+            <input type="hidden" name="next" value="{{ next }}">
+            <button type="submit" class="btn btn-primary w-100 mt-2">Log in</button>
+          </form>
+          <p class="text-center text-body-secondary small mt-3 mb-0">
+            No account yet? <a href="{% url 'vault:register' %}">Register</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

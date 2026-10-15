@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+  <section class="landing-hero mb-5">
+    {% if cover_wall %}
+      <div class="cover-wall" aria-hidden="true">
+        {% for row in cover_wall %}
+          <div class="cover-row{% if forloop.counter0|divisibleby:2 %}{% else %} cover-row-reverse{% endif %}">
+            {% for cover in row %}
+              <img src="{{ cover }}" alt="" loading="lazy">
+            {% endfor %}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <div class="landing-hero-content">
+      <span class="badge rounded-pill text-bg-primary mb-3 fade-up">
+        <i class="bi bi-controller me-1"></i>Free &middot; no ads &middot; no wallet needed
+      </span>
+      <h1 class="landing-title display-4 fw-bold fade-up delay-1">
+        Your backlog,<br>finally under control.
+      </h1>
+      <p class="lead text-body-secondary mt-3 mb-4 fade-up delay-2">
+        Track what you plan to play, what you are playing and what you have
+        finished. Rate games, build collections and talk about them with
+        other gamers.
+      </p>
+      <div class="d-flex flex-wrap gap-2 fade-up delay-3">
+        <a class="btn btn-primary btn-lg" href="{% url 'vault:register' %}">
+          <i class="bi bi-person-plus"></i> Create free account
+        </a>
+        <a class="btn btn-outline-primary btn-lg" href="{% url 'login' %}">
+          <i class="bi bi-box-arrow-in-right"></i> Log in
+        </a>
+        <a class="btn btn-outline-secondary btn-lg" href="{% url 'vault:game-list' %}">
+          <i class="bi bi-grid"></i> Browse the catalog
+        </a>
+      </div>
+      <p class="small text-body-secondary mt-3 mb-0 fade-up delay-3">
+        You are not logged in, so only the game catalog is available to you.
+      </p>
+    </div>
+  </section>
+
+  <section class="mb-5">
+    <div class="card shadow-sm">
+      <div class="card-body py-4">
+        <div class="row text-center g-4">
+          <div class="col-6 col-md-3">
+            <div class="landing-stat count-up" data-target="{{ num_games }}">{{ num_games }}</div>
+            <div class="text-body-secondary">Games</div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="landing-stat count-up" data-target="{{ num_developers }}">{{ num_developers }}</div>
+            <div class="text-body-secondary">Developers</div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="landing-stat count-up" data-target="{{ num_genres }}">{{ num_genres }}</div>
+            <div class="text-body-secondary">Genres</div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="landing-stat count-up" data-target="{{ num_platforms }}">{{ num_platforms }}</div>
+            <div class="text-body-secondary">Platforms</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="mb-5">
+    <h2 class="h3 text-center mb-4">How it works</h2>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="card h-100 landing-feature">
+          <div class="card-body text-center p-4">
+            <div class="landing-feature-icon"><i class="bi bi-journal-check"></i></div>
+            <h3 class="h5">Track your backlog</h3>
+            <p class="text-body-secondary mb-0">
+              Mark every game as planned, playing, completed or dropped, with
+              your rating, hours and notes.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card h-100 landing-feature">
+          <div class="card-body text-center p-4">
+            <div class="landing-feature-icon"><i class="bi bi-collection"></i></div>
+            <h3 class="h5">Build collections</h3>
+            <p class="text-body-secondary mb-0">
+              Group games into lists such as "Couch co-op" or "Best RPGs" and
+              share your taste with others.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card h-100 landing-feature">
+          <div class="card-body text-center p-4">
+            <div class="landing-feature-icon"><i class="bi bi-chat-left-text"></i></div>
+            <h3 class="h5">Join the discussion</h3>
+            <p class="text-body-secondary mb-0">
+              Comment on games and collections and see what other gamers are
+              playing right now.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {% if featured_games %}
+    <section class="mb-5">
+      <div class="d-flex justify-content-between align-items-end mb-3">
+        <h2 class="h3 mb-0">Popular right now</h2>
+        <a class="link-primary text-decoration-none" href="{% url 'vault:game-list' %}">
+          Full catalog <i class="bi bi-arrow-right"></i>
+        </a>
+      </div>
+      <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4">
+        {% for game in featured_games %}
+          {% include "includes/game_card.html" %}
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+
+  <section class="landing-cta text-center mb-4">
+    <h2 class="h3 mb-2">Ready to tame your backlog?</h2>
+    <p class="text-body-secondary mb-4">Create an account in a minute and add your first game.</p>
+    <a class="btn btn-primary btn-lg" href="{% url 'vault:register' %}">
+      <i class="bi bi-person-plus"></i> Get started
+    </a>
+  </section>
+{% endblock %}
+
+{% block extra_js %}
+  <script>
+    (function () {
+      const items = document.querySelectorAll(".count-up");
+      const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (reduced || !("IntersectionObserver" in window)) { return; }
+
+      function run(el) {
+        const target = parseInt(el.dataset.target, 10) || 0;
+        const duration = 900;
+        const start = performance.now();
+        function frame(now) {
+          const progress = Math.min((now - start) / duration, 1);
+          el.textContent = Math.round(target * (1 - Math.pow(1 - progress, 3)));
+          if (progress < 1) { requestAnimationFrame(frame); }
+        }
+        requestAnimationFrame(frame);
+      }
+
+      const observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) { run(entry.target); observer.unobserve(entry.target); }
+        });
+      }, { threshold: 0.4 });
+      items.forEach(function (el) { observer.observe(el); });
+    })();
+  </script>
+{% endblock %}

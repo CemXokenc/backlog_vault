@@ -1,0 +1,7 @@
+Hi {{ gamer.nickname|default:gamer.username }},
+
+Welcome to Backlog Vault! Open this link to activate your account:
+
+{{ activation_url }}
+
+If you did not register, just ignore this message.
