@@ -1,0 +1,8 @@
+<div class="empty-state">
+  <i class="bi bi-{{ icon|default:'inbox' }}"></i>
+  <h2 class="h5">{{ title }}</h2>
+  {% if text %}<p class="text-body-secondary mb-0">{{ text }}</p>{% endif %}
+  {% if url %}
+    <a class="btn btn-primary mt-3" href="{{ url }}">{{ label }}</a>
+  {% endif %}
+</div>

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Access denied{% endblock %}
+
+{% block content %}
+  <div class="text-center py-5">
+    <div class="error-code">403</div>
+    <h1 class="h3 mt-3">You don't have access to this page</h1>
+    <p class="text-body-secondary">
+      This page is only available to users with the right permissions,
+      for example moderators and admins.
+    </p>
+    <a class="btn btn-primary" href="{% url 'vault:index' %}">Back to home</a>
+  </div>
+{% endblock %}

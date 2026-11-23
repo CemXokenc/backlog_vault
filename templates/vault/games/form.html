@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% load crispy_forms_filters %}
+
+{% block title %}{% if object %}Edit game{% else %}Add game{% endif %}{% endblock %}
+
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-xl-10">
+      <div class="card shadow-sm">
+        <div class="card-body p-4 p-lg-5">
+          <div class="form-header">
+            <span class="page-icon"><i class="bi bi-controller"></i></span>
+            <div>
+              <h1>{% if object %}Edit {{ object.title }}{% else %}Add game{% endif %}</h1>
+            </div>
+          </div>
+
+          <form method="post" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+              <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            <div class="row g-4">
+              <div class="col-md-6">
+                {{ form.title|as_crispy_field }}
+                {{ form.release_year|as_crispy_field }}
+                {{ form.developer|as_crispy_field }}
+              </div>
+              <div class="col-md-6 cover-preview-col">
+                <div class="cover-preview" id="cover-preview"
+                     data-initial="{{ object.cover_source|default:'' }}"
+                     data-has-upload="{% if object.cover %}1{% endif %}">
+                  <img src="" alt="Game cover preview" class="d-none">
+                  <div class="cover-preview-empty">
+                    <i class="bi bi-image"></i>
+                    <span>Cover preview</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row g-4 mt-0">
+              <div class="col-md-6">{{ form.genres|as_crispy_field }}</div>
+              <div class="col-md-6">{{ form.platforms|as_crispy_field }}</div>
+            </div>
+
+            {{ form.description|as_crispy_field }}
+
+            <div class="row g-4">
+              <div class="col-md-6">{{ form.cover|as_crispy_field }}</div>
+              <div class="col-md-6">{{ form.cover_url|as_crispy_field }}</div>
+            </div>
+
+            <div class="mt-4 d-flex justify-content-center gap-2">
+              <button type="submit" class="btn btn-primary">Save</button>
+              {% if object %}
+                <a class="btn btn-outline-secondary" href="{% url 'vault:game-detail' object.pk %}">Cancel</a>
+              {% else %}
+                <a class="btn btn-outline-secondary" href="{% url 'vault:game-list' %}">Cancel</a>
+              {% endif %}
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+  <script>
+    (function () {
+      const box = document.getElementById("cover-preview");
+      const img = box.querySelector("img");
+      const empty = box.querySelector(".cover-preview-empty");
+      const fileInput = document.getElementById("id_cover");
+      const urlInput = document.getElementById("id_cover_url");
+      const initial = box.dataset.initial;
+      const hasUpload = box.dataset.hasUpload === "1";
+      let objectUrl = null;
+
+      function show(src) {
+        if (src) {
+          img.src = src;
+          img.classList.remove("d-none");
+          empty.classList.add("d-none");
+        } else {
+          img.classList.add("d-none");
+          empty.classList.remove("d-none");
+        }
+      }
+
+      function refresh() {
+        // Same priority as the site: uploaded file first, then the URL.
+        if (objectUrl) {
+          show(objectUrl);
+        } else if (hasUpload) {
+          show(initial);
+        } else {
+          show(urlInput && urlInput.value.trim());
+        }
+      }
+
+      img.addEventListener("error", function () { show(""); });
+
+      if (fileInput) {
+        fileInput.addEventListener("change", function () {
+          if (objectUrl) { URL.revokeObjectURL(objectUrl); objectUrl = null; }
+          if (fileInput.files && fileInput.files[0]) {
+            objectUrl = URL.createObjectURL(fileInput.files[0]);
+          }
+          refresh();
+        });
+      }
+      if (urlInput) { urlInput.addEventListener("input", refresh); }
+
+      show(initial);
+    })();
+  </script>
+{% endblock %}
